@@ -1,0 +1,6 @@
+requirements.txt
+pytest.ini
+tests/
+.pytest_cache/
+poland_weather_app/
+warsaw_skate_app/
