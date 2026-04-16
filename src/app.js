@@ -495,7 +495,10 @@ function renderChatExercise() {
       <span class="tag">${exercise.mode === "dialogue" ? "Диалог" : "Перевод"}</span>
     </div>
     <p class="exercise-card__prompt">${exercise.prompt}</p>
-    <p class="exercise-card__meta">${exercise.helpText}</p>
+    <details class="help-popover help-popover--card">
+      <summary aria-label="Показать подсказку к заданию">?</summary>
+      <div class="help-popover__content">${exercise.helpText}</div>
+    </details>
   `;
 }
 

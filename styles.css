@@ -350,6 +350,18 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 
+.inline-help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inline-help-head h3,
+.inline-help-head .eyebrow {
+  margin-bottom: 0;
+}
+
 .progress-card {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 18px 0;
@@ -716,6 +728,62 @@ textarea {
   grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr);
   gap: 16px;
   align-items: start;
+}
+
+.help-popover {
+  position: relative;
+}
+
+.help-popover summary {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(20, 54, 66, 0.1);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--accent-strong);
+  font-family: var(--heading-font);
+  font-size: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.help-popover summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-popover[open] summary {
+  background: var(--text);
+  color: #fffdf8;
+}
+
+.help-popover__content {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 3;
+  width: min(320px, 70vw);
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(20, 54, 66, 0.1);
+  background: rgba(255, 252, 247, 0.98);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.help-popover--inline {
+  justify-self: end;
+}
+
+.help-popover--card {
+  justify-self: start;
+}
+
+.help-popover--card .help-popover__content {
+  left: 0;
+  right: auto;
 }
 
 .chat-log {

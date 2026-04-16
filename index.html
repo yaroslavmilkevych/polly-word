@@ -147,10 +147,16 @@
             </div>
 
             <div class="mode-card">
-              <p class="eyebrow">Режим</p>
-              <p class="support-copy" id="sync-mode">
-                Локальный режим с готовой архитектурой под Supabase.
-              </p>
+              <div class="inline-help-head">
+                <p class="eyebrow">Режим</p>
+                <details class="help-popover">
+                  <summary aria-label="Показать подсказку о режиме">?</summary>
+                  <div class="help-popover__content" id="sync-mode">
+                    Локальный режим с готовой архитектурой под Supabase.
+                  </div>
+                </details>
+              </div>
+              <p class="support-copy">Текущий способ хранения прогресса</p>
             </div>
           </aside>
 
@@ -333,12 +339,16 @@
                 <section class="panel tutor-panel">
                   <div class="tutor-panel__header">
                     <div>
-                      <h3 id="tutor-panel-title">Как это работает</h3>
-                      <p class="support-copy">
-                        Это учебный ассистент на шаблонах и правилах. Он
-                        помогает тренировать частые конструкции и объясняет
-                        типовые ошибки.
-                      </p>
+                      <div class="inline-help-head">
+                        <h3 id="tutor-panel-title">Как это работает</h3>
+                        <details class="help-popover">
+                          <summary aria-label="Показать подсказку о задании">?</summary>
+                          <div class="help-popover__content">
+                            Это учебный ассистент на шаблонах и правилах. Он помогает
+                            тренировать частые конструкции и объясняет типовые ошибки.
+                          </div>
+                        </details>
+                      </div>
                     </div>
                     <button class="secondary-button" id="next-exercise-button" type="button">
                       Следующее задание
@@ -353,9 +363,12 @@
                       <p class="eyebrow">Тренер</p>
                       <h3 id="chat-panel-title">Практика ответа</h3>
                     </div>
-                    <p class="support-copy" id="chat-panel-hint">
-                      Напиши перевод или ответ на польском и сразу получи подсказку.
-                    </p>
+                    <details class="help-popover help-popover--inline">
+                      <summary aria-label="Показать подсказку для тренера">?</summary>
+                      <div class="help-popover__content" id="chat-panel-hint">
+                        Напиши перевод или ответ на польском и сразу получи подсказку.
+                      </div>
+                    </details>
                   </div>
 
                   <div class="chat-log" id="chat-log" aria-live="polite"></div>
