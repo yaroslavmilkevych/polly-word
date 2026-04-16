@@ -26,6 +26,7 @@ const state = {
   archiveMode: "cards",
   chatMode: "translation",
   quiz: null,
+  currentGameIndex: 0,
   deferredInstallPrompt: null,
   authPending: false,
 };
@@ -60,6 +61,9 @@ function cacheDom() {
   ui.topicFilter = document.querySelector("#topic-filter");
   ui.wordList = document.querySelector("#word-list");
   ui.stickerGrid = document.querySelector("#sticker-grid");
+  ui.prevWordButton = document.querySelector("#prev-word-button");
+  ui.nextWordButton = document.querySelector("#next-word-button");
+  ui.gamePositionLabel = document.querySelector("#game-position-label");
   ui.archiveWordList = document.querySelector("#archive-word-list");
   ui.archiveCards = document.querySelector("#archive-cards");
   ui.quizPanel = document.querySelector("#quiz-panel");
@@ -88,6 +92,21 @@ function activeLearningWords() {
   return mergeWordsWithProgress(state.words, state.progress).filter(
     (word) => word.progress.status !== "archived",
   );
+}
+
+function clampGameIndex(words) {
+  if (words.length === 0) {
+    state.currentGameIndex = 0;
+    return;
+  }
+
+  if (state.currentGameIndex >= words.length) {
+    state.currentGameIndex = words.length - 1;
+  }
+
+  if (state.currentGameIndex < 0) {
+    state.currentGameIndex = 0;
+  }
 }
 
 function archivedWords() {
@@ -207,9 +226,22 @@ function stickerMarkup(word, scope) {
 
 function renderGame() {
   const cards = activeLearningWords();
-  ui.stickerGrid.innerHTML = cards.length
-    ? cards.map((word) => stickerMarkup(word, "game")).join("")
-    : '<p class="support-copy">Все слова уже перенесены в архив. Перейди в архив и повтори их там.</p>';
+  clampGameIndex(cards);
+
+  if (!cards.length) {
+    ui.stickerGrid.innerHTML =
+      '<p class="support-copy">Все слова уже перенесены в архив. Перейди в архив и повтори их там.</p>';
+    ui.gamePositionLabel.textContent = "Слово 0 из 0";
+    ui.prevWordButton.disabled = true;
+    ui.nextWordButton.disabled = true;
+    return;
+  }
+
+  const currentWord = cards[state.currentGameIndex];
+  ui.stickerGrid.innerHTML = stickerMarkup(currentWord, "game");
+  ui.gamePositionLabel.textContent = `Слово ${state.currentGameIndex + 1} из ${cards.length}`;
+  ui.prevWordButton.disabled = state.currentGameIndex === 0;
+  ui.nextWordButton.disabled = state.currentGameIndex === cards.length - 1;
 }
 
 function renderArchive() {
@@ -358,11 +390,19 @@ async function saveChat() {
 }
 
 async function setProgress(wordId, nextStatus) {
+  const wasGameWord =
+    state.activeTab === "game" &&
+    activeLearningWords().some((word) => word.id === wordId);
   state.progress = upsertWordProgress(state.progress, wordId, nextStatus);
   await saveProgress();
 
   if (nextStatus === "archived") {
     await addReviewSession("mark-known", 1, { wordId });
+  }
+
+  if (wasGameWord && nextStatus === "archived") {
+    const nextCards = activeLearningWords();
+    clampGameIndex(nextCards);
   }
 
   render();
@@ -551,6 +591,7 @@ function setupEvents() {
 
     if (jumpButton) {
       state.activeTab = jumpButton.dataset.jumpTab;
+      state.currentGameIndex = 0;
       renderTabs();
       return;
     }
@@ -606,6 +647,16 @@ function setupEvents() {
   ui.nextExerciseButton?.addEventListener("click", () => {
     state.tutorService.advance(state.chatMode);
     renderChatExercise();
+  });
+
+  ui.prevWordButton?.addEventListener("click", () => {
+    state.currentGameIndex -= 1;
+    renderGame();
+  });
+
+  ui.nextWordButton?.addEventListener("click", () => {
+    state.currentGameIndex += 1;
+    renderGame();
   });
 
   ui.chatForm?.addEventListener("submit", handleChatSubmit);

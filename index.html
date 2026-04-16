@@ -156,11 +156,25 @@
                   <h2>Кликай по стикеру и проверяй перевод</h2>
                 </div>
                 <p class="support-copy">
-                  После переворота выбери, знаешь ли ты слово.
+                  Показываем по одному слову, чтобы было легче сосредоточиться.
                 </p>
               </div>
 
-              <div class="sticker-grid" id="sticker-grid"></div>
+              <div class="single-card-stage">
+                <div class="single-card-stage__controls">
+                  <button class="secondary-button" type="button" id="prev-word-button">
+                    ← Предыдущее
+                  </button>
+                  <p class="support-copy" id="game-position-label">
+                    Слово 1 из 1
+                  </p>
+                  <button class="secondary-button" type="button" id="next-word-button">
+                    Следующее →
+                  </button>
+                </div>
+
+                <div class="single-card-stage__card" id="sticker-grid"></div>
+              </div>
             </section>
 
             <section

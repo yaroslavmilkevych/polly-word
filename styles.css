@@ -461,6 +461,32 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 }
 
+.single-card-stage {
+  display: grid;
+  gap: 20px;
+}
+
+.single-card-stage__controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.single-card-stage__controls .support-copy {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.single-card-stage__card {
+  display: grid;
+  justify-items: center;
+}
+
+.single-card-stage__card .sticker-card {
+  width: min(100%, 420px);
+}
+
 .sticker-card {
   position: relative;
   min-height: 228px;
@@ -662,6 +688,10 @@ textarea {
   .tutor-panel__header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .single-card-stage__controls {
+    grid-template-columns: 1fr;
   }
 }
 
