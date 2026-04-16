@@ -85,10 +85,15 @@ button {
 }
 
 .app-shell.is-authenticated .app-header {
-  margin-bottom: 12px;
-  padding: 12px 18px;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  padding: 0;
   min-height: auto;
   align-items: center;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .app-shell.is-authenticated .app-header > div:first-child {

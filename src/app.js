@@ -3,6 +3,7 @@ import {
   buildQuizQuestion,
   createDefaultProgress,
   mergeWordsWithProgress,
+  selectStudyWords,
   summarizeProgress,
   upsertWordProgress,
 } from "./state-model.js";
@@ -10,6 +11,7 @@ import { createServices } from "./storage.js";
 import { TutorService } from "./tutor-service.js";
 
 const DEFAULT_TAB = "words";
+const NEW_WORDS_BATCH_SIZE = 12;
 
 const state = {
   services: null,
@@ -76,16 +78,10 @@ function cacheDom() {
 }
 
 function visibleWords() {
-  const merged = mergeWordsWithProgress(state.words, state.progress);
-  const learningWords = merged.filter(
-    (word) => word.progress.status !== "archived",
-  );
-
-  if (state.topicFilter === "all") {
-    return learningWords;
-  }
-
-  return learningWords.filter((word) => word.topic === state.topicFilter);
+  return selectStudyWords(state.words, state.progress, {
+    topic: state.topicFilter,
+    limit: NEW_WORDS_BATCH_SIZE,
+  });
 }
 
 function activeLearningWords() {
@@ -175,7 +171,7 @@ function renderWords() {
 
   ui.wordList.innerHTML =
     wordsMarkup ||
-    '<p class="support-copy">В разделе новых слов сейчас пусто: все текущие слова уже изучены и перенесены в архив. Перейди в архив, чтобы повторять их дальше.</p>';
+    '<p class="support-copy">В разделе новых слов сейчас пусто: текущая порция уже изучена. Перейди в архив для повторения или смени тему, чтобы открыть другую группу слов.</p>';
 }
 
 function stickerMarkup(word, scope) {
@@ -533,7 +529,11 @@ function setupEvents() {
   ui.topicFilter?.addEventListener("change", (event) => {
     state.topicFilter = event.target.value;
     renderWords();
+    renderGame();
   });
+
+  ui.emailInput?.addEventListener("input", resetAuthStatus);
+  ui.passwordInput?.addEventListener("input", resetAuthStatus);
 
   ui.bottomNav?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-tab]");
@@ -635,6 +635,15 @@ function updateAuthControls() {
       ? "Подождите..."
       : "Зарегистрироваться";
   }
+}
+
+function resetAuthStatus() {
+  if (!ui.authStatus || state.user) {
+    return;
+  }
+
+  ui.authStatus.textContent =
+    "Демо-режим включен: можно зарегистрироваться и сохранить прогресс локально.";
 }
 
 async function init() {

@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   buildQuizQuestion,
   createDefaultProgress,
+  selectStudyWords,
   summarizeProgress,
   upsertWordProgress,
 } from "./state-model.js";
@@ -47,4 +48,21 @@ test("quiz question uses archived word translations as options", () => {
   assert.equal(question.prompt, 'Как переводится слово "cześć"?');
   assert.equal(question.correctAnswer, "привет");
   assert.equal(question.options.length, 3);
+});
+
+test("study words selection skips archived items and limits the batch", () => {
+  const words = [
+    { id: "one", polish: "a", russian: "a", topic: "A" },
+    { id: "two", polish: "b", russian: "b", topic: "A" },
+    { id: "three", polish: "c", russian: "c", topic: "A" },
+  ];
+  const progress = {
+    one: { wordId: "one", status: "archived" },
+    two: { wordId: "two", status: "new" },
+    three: { wordId: "three", status: "learning" },
+  };
+
+  const selected = selectStudyWords(words, progress, { topic: "A", limit: 1 });
+
+  assert.deepEqual(selected.map((word) => word.id), ["two"]);
 });

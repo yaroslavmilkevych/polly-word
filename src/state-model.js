@@ -24,6 +24,20 @@ export function mergeWordsWithProgress(words, progressMap) {
   }));
 }
 
+export function selectStudyWords(
+  words,
+  progressMap,
+  { topic = "all", limit = Number.POSITIVE_INFINITY } = {},
+) {
+  const merged = mergeWordsWithProgress(words, progressMap).filter(
+    (word) => word.progress.status !== "archived",
+  );
+  const filtered =
+    topic === "all" ? merged : merged.filter((word) => word.topic === topic);
+
+  return filtered.slice(0, limit);
+}
+
 export function upsertWordProgress(progressMap, wordId, nextStatus) {
   const current = progressMap[wordId] ?? {
     wordId,
