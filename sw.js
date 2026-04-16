@@ -1,4 +1,4 @@
-const CACHE_NAME = "polly-word-v1";
+const CACHE_NAME = "polly-word-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -40,35 +40,33 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (
-            !networkResponse ||
-            networkResponse.status !== 200 ||
-            networkResponse.type !== "basic"
-          ) {
-            return networkResponse;
-          }
-
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          (networkResponse.type === "basic" || event.request.mode === "navigate")
+        ) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
           });
+        }
 
-          return networkResponse;
-        })
-        .catch(async () => {
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
+        return networkResponse;
+      })
+      .catch(async () => {
+        const cachedResponse = await caches.match(event.request);
 
-          return new Response("Offline", { status: 503, statusText: "Offline" });
-        });
-    }),
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        if (event.request.mode === "navigate") {
+          return caches.match("./index.html");
+        }
+
+        return new Response("Offline", { status: 503, statusText: "Offline" });
+      }),
   );
 });
