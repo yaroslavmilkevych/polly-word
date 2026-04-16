@@ -5,6 +5,7 @@ import {
   mergeWordsWithProgress,
   selectStudyWords,
   summarizeProgress,
+  updateTranslationStreak,
   upsertWordProgress,
 } from "./state-model.js";
 import { createServices } from "./storage.js";
@@ -25,9 +26,11 @@ const state = {
   topicFilter: "all",
   levelFilter: "all",
   archiveMode: "cards",
+  gameMode: "cards",
   chatMode: "translation",
   quiz: null,
   currentGameIndex: 0,
+  currentTranslateDirection: "pl-ru",
   deferredInstallPrompt: null,
   authPending: false,
 };
@@ -63,6 +66,13 @@ function cacheDom() {
   ui.levelFilter = document.querySelector("#level-filter");
   ui.wordList = document.querySelector("#word-list");
   ui.stickerGrid = document.querySelector("#sticker-grid");
+  ui.translateStage = document.querySelector("#translate-stage");
+  ui.translateForm = document.querySelector("#translate-form");
+  ui.translateInput = document.querySelector("#translate-input");
+  ui.translatePrompt = document.querySelector("#translate-prompt");
+  ui.translateFeedback = document.querySelector("#translate-feedback");
+  ui.translateDirectionLabel = document.querySelector("#translate-direction-label");
+  ui.translateStreakLabel = document.querySelector("#translate-streak-label");
   ui.prevWordButton = document.querySelector("#prev-word-button");
   ui.nextWordButton = document.querySelector("#next-word-button");
   ui.gamePositionLabel = document.querySelector("#game-position-label");
@@ -73,6 +83,7 @@ function cacheDom() {
   ui.quizOptions = document.querySelector("#quiz-options");
   ui.quizFeedback = document.querySelector("#quiz-feedback");
   ui.archiveModeButtons = document.querySelectorAll("[data-archive-mode]");
+  ui.gameModeButtons = document.querySelectorAll("[data-game-mode]");
   ui.chatModeSelect = document.querySelector("#chat-mode-select");
   ui.exerciseCard = document.querySelector("#exercise-card");
   ui.nextExerciseButton = document.querySelector("#next-exercise-button");
@@ -261,6 +272,8 @@ function renderGame() {
   if (!cards.length) {
     ui.stickerGrid.innerHTML =
       '<p class="support-copy">Все слова уже перенесены в архив. Перейди в архив и повтори их там.</p>';
+    setHidden(ui.translateStage, true);
+    setHidden(ui.stickerGrid, false);
     ui.gamePositionLabel.textContent = "Слово 0 из 0";
     ui.prevWordButton.disabled = true;
     ui.nextWordButton.disabled = true;
@@ -268,10 +281,44 @@ function renderGame() {
   }
 
   const currentWord = cards[state.currentGameIndex];
-  ui.stickerGrid.innerHTML = stickerMarkup(currentWord, "game");
   ui.gamePositionLabel.textContent = `Слово ${state.currentGameIndex + 1} из ${cards.length}`;
   ui.prevWordButton.disabled = state.currentGameIndex === 0;
   ui.nextWordButton.disabled = state.currentGameIndex === cards.length - 1;
+  ui.gameModeButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.gameMode === state.gameMode);
+  });
+
+  if (state.gameMode === "cards") {
+    setHidden(ui.stickerGrid, false);
+    setHidden(ui.translateStage, true);
+    ui.stickerGrid.innerHTML = stickerMarkup(currentWord, "game");
+    return;
+  }
+
+  setHidden(ui.stickerGrid, true);
+  setHidden(ui.translateStage, false);
+  renderTranslateGame(currentWord);
+}
+
+function renderTranslateGame(word) {
+  const prompt =
+    state.currentTranslateDirection === "pl-ru" ? word.polish : word.russian;
+  const directionLabel =
+    state.currentTranslateDirection === "pl-ru"
+      ? "Польский → Русский"
+      : "Русский → Польский";
+  const streak = state.progress[word.id]?.translationStreak ?? 0;
+
+  ui.translateDirectionLabel.textContent = directionLabel;
+  ui.translatePrompt.textContent = prompt;
+  ui.translateStreakLabel.textContent = `Серия: ${streak} / 5`;
+  ui.translateInput.value = "";
+  ui.translateInput.placeholder =
+    state.currentTranslateDirection === "pl-ru"
+      ? "Напиши перевод на русском"
+      : "Напиши перевод на польском";
+  ui.translateFeedback.textContent =
+    "Напиши перевод. После проверки перейдем к следующему слову.";
 }
 
 function renderArchive() {
@@ -437,6 +484,79 @@ async function setProgress(wordId, nextStatus) {
   }
 
   render();
+}
+
+function normalizeAnswer(value) {
+  return value
+    .toLowerCase()
+    .replace(/[.!?,]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getCurrentGameWord() {
+  const cards = activeLearningWords();
+  if (!cards.length) {
+    return null;
+  }
+
+  clampGameIndex(cards);
+  return cards[state.currentGameIndex];
+}
+
+function advanceGameWord() {
+  const cards = activeLearningWords();
+  clampGameIndex(cards);
+
+  if (state.currentGameIndex < cards.length - 1) {
+    state.currentGameIndex += 1;
+  }
+
+  state.currentTranslateDirection =
+    state.currentTranslateDirection === "pl-ru" ? "ru-pl" : "pl-ru";
+  renderGame();
+}
+
+async function handleTranslateSubmit(event) {
+  event.preventDefault();
+  const word = getCurrentGameWord();
+  const answer = ui.translateInput.value.trim();
+
+  if (!word || !answer) {
+    ui.translateFeedback.textContent = "Сначала введи перевод.";
+    return;
+  }
+
+  const expected =
+    state.currentTranslateDirection === "pl-ru" ? word.russian : word.polish;
+  const isCorrect = normalizeAnswer(answer) === normalizeAnswer(expected);
+
+  state.progress = updateTranslationStreak(state.progress, word.id, isCorrect);
+  const streak = state.progress[word.id]?.translationStreak ?? 0;
+
+  if (isCorrect) {
+    ui.translateFeedback.textContent =
+      streak >= 5
+        ? `Правильно. Слово "${word.polish}" выучено и отправлено в архив.`
+        : `Правильно. Текущая серия для слова: ${streak} из 5.`;
+  } else {
+    ui.translateFeedback.textContent = `Неправильно. Верный ответ: ${expected}`;
+  }
+
+  if (isCorrect && streak >= 5) {
+    state.progress = upsertWordProgress(state.progress, word.id, "archived");
+    await addReviewSession("translation-mastered", 1, {
+      wordId: word.id,
+      direction: state.currentTranslateDirection,
+    });
+  }
+
+  await saveProgress();
+  renderStats();
+
+  window.setTimeout(() => {
+    advanceGameWord();
+  }, isCorrect ? 700 : 1200);
 }
 
 async function handleAuth(action) {
@@ -679,6 +799,7 @@ function setupEvents() {
     const flipButton = event.target.closest("[data-flip-word]");
     const progressButton = event.target.closest("[data-progress-word]");
     const archiveModeButton = event.target.closest("[data-archive-mode]");
+    const gameModeButton = event.target.closest("[data-game-mode]");
     const quizButton = event.target.closest("[data-quiz-answer]");
 
     if (flipButton) {
@@ -703,6 +824,11 @@ function setupEvents() {
     if (archiveModeButton) {
       state.archiveMode = archiveModeButton.dataset.archiveMode;
       renderArchive();
+    }
+
+    if (gameModeButton) {
+      state.gameMode = gameModeButton.dataset.gameMode;
+      renderGame();
     }
 
     if (quizButton) {
@@ -730,6 +856,7 @@ function setupEvents() {
     renderGame();
   });
 
+  ui.translateForm?.addEventListener("submit", handleTranslateSubmit);
   ui.chatForm?.addEventListener("submit", handleChatSubmit);
 }
 

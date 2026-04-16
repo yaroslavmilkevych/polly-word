@@ -163,9 +163,22 @@
                   <p class="eyebrow">Игра со словами</p>
                   <h2>Кликай по стикеру и проверяй перевод</h2>
                 </div>
-                <p class="support-copy">
-                  Показываем по одному слову, чтобы было легче сосредоточиться.
-                </p>
+                <div class="archive-toggle" role="tablist" aria-label="Режим игры">
+                  <button
+                    class="chip-button is-active"
+                    type="button"
+                    data-game-mode="cards"
+                  >
+                    Карточка
+                  </button>
+                  <button
+                    class="chip-button"
+                    type="button"
+                    data-game-mode="translate"
+                  >
+                    Пиши перевод
+                  </button>
+                </div>
               </div>
 
               <div class="single-card-stage">
@@ -182,6 +195,29 @@
                 </div>
 
                 <div class="single-card-stage__card" id="sticker-grid"></div>
+
+                <div class="translate-stage panel" id="translate-stage" hidden>
+                  <div class="translate-stage__header">
+                    <strong id="translate-direction-label">Польский → Русский</strong>
+                    <span class="tag" id="translate-streak-label">Серия: 0 / 5</span>
+                  </div>
+                  <p class="translate-stage__prompt" id="translate-prompt">cześć</p>
+                  <form class="translate-stage__form" id="translate-form">
+                    <label class="sr-only" for="translate-input">Перевод</label>
+                    <input
+                      id="translate-input"
+                      type="text"
+                      placeholder="Напиши перевод"
+                      autocomplete="off"
+                    />
+                    <button class="primary-button" type="submit">
+                      Проверить
+                    </button>
+                  </form>
+                  <p class="status-banner" id="translate-feedback" role="status">
+                    Переведи слово и нажми проверить.
+                  </p>
+                </div>
               </div>
             </section>
 

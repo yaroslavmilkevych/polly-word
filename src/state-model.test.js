@@ -6,6 +6,7 @@ import {
   createDefaultProgress,
   selectStudyWords,
   summarizeProgress,
+  updateTranslationStreak,
   upsertWordProgress,
 } from "./state-model.js";
 
@@ -20,6 +21,7 @@ test("default progress marks every word as new", () => {
 
   assert.equal(progress.one.status, "new");
   assert.equal(progress.two.correctAnswers, 0);
+  assert.equal(progress.one.translationStreak, 0);
 });
 
 test("archiving a word increments review counters", () => {
@@ -65,4 +67,12 @@ test("study words selection skips archived items and limits the batch", () => {
   const selected = selectStudyWords(words, progress, { topic: "A", limit: 1 });
 
   assert.deepEqual(selected.map((word) => word.id), ["two"]);
+});
+
+test("translation streak increases on correct answer and resets on wrong answer", () => {
+  const correct = updateTranslationStreak({}, "one", true);
+  const wrong = updateTranslationStreak(correct, "one", false);
+
+  assert.equal(correct.one.translationStreak, 1);
+  assert.equal(wrong.one.translationStreak, 0);
 });

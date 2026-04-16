@@ -6,6 +6,7 @@ export function createDefaultProgress(words) {
         wordId: word.id,
         status: "new",
         correctAnswers: 0,
+        translationStreak: 0,
         lastReviewedAt: null,
       },
     ]),
@@ -19,6 +20,7 @@ export function mergeWordsWithProgress(words, progressMap) {
       wordId: word.id,
       status: "new",
       correctAnswers: 0,
+      translationStreak: 0,
       lastReviewedAt: null,
     },
   }));
@@ -47,6 +49,7 @@ export function upsertWordProgress(progressMap, wordId, nextStatus) {
     wordId,
     status: "new",
     correctAnswers: 0,
+    translationStreak: 0,
     lastReviewedAt: null,
   };
 
@@ -61,6 +64,28 @@ export function upsertWordProgress(progressMap, wordId, nextStatus) {
       ...current,
       status: nextStatus,
       correctAnswers,
+      translationStreak:
+        nextStatus === "archived" ? current.translationStreak : current.translationStreak,
+      lastReviewedAt: new Date().toISOString(),
+    },
+  };
+}
+
+export function updateTranslationStreak(progressMap, wordId, isCorrect) {
+  const current = progressMap[wordId] ?? {
+    wordId,
+    status: "new",
+    correctAnswers: 0,
+    translationStreak: 0,
+    lastReviewedAt: null,
+  };
+  const nextStreak = isCorrect ? current.translationStreak + 1 : 0;
+
+  return {
+    ...progressMap,
+    [wordId]: {
+      ...current,
+      translationStreak: nextStreak,
       lastReviewedAt: new Date().toISOString(),
     },
   };

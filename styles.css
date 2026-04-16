@@ -493,6 +493,37 @@ textarea {
   width: min(100%, 420px);
 }
 
+.translate-stage {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 560px);
+  padding: 24px;
+}
+
+.translate-stage__header,
+.translate-stage__form {
+  display: grid;
+  gap: 14px;
+}
+
+.translate-stage__header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.translate-stage__prompt {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-family: var(--heading-font);
+}
+
+.translate-stage__form {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
 .sticker-card {
   position: relative;
   min-height: 228px;
@@ -698,6 +729,11 @@ textarea {
   }
 
   .single-card-stage__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .translate-stage__header,
+  .translate-stage__form {
     grid-template-columns: 1fr;
   }
 }
