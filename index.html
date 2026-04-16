@@ -308,21 +308,32 @@
                   <p class="eyebrow">Общение с ИИ</p>
                   <h2>Учебный ассистент для польского</h2>
                 </div>
+              </div>
 
-                <label class="theme-filter">
-                  Режим
-                  <select id="chat-mode-select">
-                    <option value="translation">Перевод и исправление</option>
-                    <option value="dialogue">Диалог на польском</option>
-                  </select>
-                </label>
+              <div class="chat-mode-bar" role="tablist" aria-label="Режим общения">
+                <button
+                  class="chat-mode-card is-active"
+                  type="button"
+                  data-chat-mode="translation"
+                >
+                  <strong>Перевод и исправление</strong>
+                  <span>Пишешь фразу, тренер показывает ошибку и лучший вариант.</span>
+                </button>
+                <button
+                  class="chat-mode-card"
+                  type="button"
+                  data-chat-mode="dialogue"
+                >
+                  <strong>Диалог на польском</strong>
+                  <span>Учитель отвечает по-польски, исправляет и задает следующий вопрос.</span>
+                </button>
               </div>
 
               <div class="chat-layout">
                 <section class="panel tutor-panel">
                   <div class="tutor-panel__header">
                     <div>
-                      <h3>Как это работает</h3>
+                      <h3 id="tutor-panel-title">Как это работает</h3>
                       <p class="support-copy">
                         Это учебный ассистент на шаблонах и правилах. Он
                         помогает тренировать частые конструкции и объясняет
@@ -337,6 +348,16 @@
                 </section>
 
                 <section class="panel chat-panel">
+                  <div class="chat-panel__header">
+                    <div>
+                      <p class="eyebrow">Тренер</p>
+                      <h3 id="chat-panel-title">Практика ответа</h3>
+                    </div>
+                    <p class="support-copy" id="chat-panel-hint">
+                      Напиши перевод или ответ на польском и сразу получи подсказку.
+                    </p>
+                  </div>
+
                   <div class="chat-log" id="chat-log" aria-live="polite"></div>
 
                   <form class="chat-form" id="chat-form">
@@ -344,7 +365,7 @@
                     <textarea
                       id="chat-input"
                       rows="3"
-                      placeholder="Напиши перевод или ответ на польском"
+                      placeholder="Напиши ответ"
                     ></textarea>
                     <button class="primary-button" type="submit">
                       Отправить

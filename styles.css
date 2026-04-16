@@ -643,8 +643,44 @@ textarea {
 }
 
 .chat-layout {
-  grid-template-columns: minmax(280px, 0.35fr) minmax(0, 0.65fr);
+  grid-template-columns: minmax(260px, 0.32fr) minmax(0, 0.68fr);
   align-items: start;
+}
+
+.chat-mode-bar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.chat-mode-card {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  text-align: left;
+  border-radius: 22px;
+  border: 1px solid rgba(20, 54, 66, 0.1);
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--text);
+}
+
+.chat-mode-card strong {
+  font-family: var(--heading-font);
+  font-size: 1.1rem;
+}
+
+.chat-mode-card span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.chat-mode-card.is-active {
+  background:
+    linear-gradient(155deg, rgba(245, 93, 62, 0.14), rgba(255, 255, 255, 0.96)),
+    rgba(255, 255, 255, 0.9);
+  border-color: rgba(245, 93, 62, 0.28);
+  box-shadow: var(--shadow);
 }
 
 .tutor-panel__header {
@@ -664,7 +700,22 @@ textarea {
 }
 
 .exercise-card__prompt {
-  font-size: 1.15rem;
+  margin: 0;
+  font-size: 1.28rem;
+  line-height: 1.25;
+  font-family: var(--heading-font);
+}
+
+.chat-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.chat-panel__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr);
+  gap: 16px;
+  align-items: start;
 }
 
 .chat-log {
@@ -731,7 +782,9 @@ textarea {
 
   .progress-card,
   .auth-form__actions,
-  .filters-row {
+  .filters-row,
+  .chat-mode-bar,
+  .chat-panel__header {
     grid-template-columns: 1fr;
   }
 

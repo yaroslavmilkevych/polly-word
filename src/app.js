@@ -91,12 +91,15 @@ function cacheDom() {
   ui.quizFeedback = document.querySelector("#quiz-feedback");
   ui.archiveModeButtons = document.querySelectorAll("[data-archive-mode]");
   ui.gameModeButtons = document.querySelectorAll("[data-game-mode]");
-  ui.chatModeSelect = document.querySelector("#chat-mode-select");
+  ui.chatModeButtons = document.querySelectorAll("[data-chat-mode]");
   ui.exerciseCard = document.querySelector("#exercise-card");
   ui.nextExerciseButton = document.querySelector("#next-exercise-button");
   ui.chatLog = document.querySelector("#chat-log");
   ui.chatForm = document.querySelector("#chat-form");
   ui.chatInput = document.querySelector("#chat-input");
+  ui.tutorPanelTitle = document.querySelector("#tutor-panel-title");
+  ui.chatPanelTitle = document.querySelector("#chat-panel-title");
+  ui.chatPanelHint = document.querySelector("#chat-panel-hint");
   ui.tabButtons = document.querySelectorAll("[data-tab]");
   ui.tabPanels = document.querySelectorAll("[data-tab-panel]");
 }
@@ -450,6 +453,42 @@ function renderQuiz(words = archivedWords()) {
 
 function renderChatExercise() {
   const exercise = state.tutorService.getExercise(state.chatMode);
+  const isDialogue = state.chatMode === "dialogue";
+
+  ui.chatModeButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.chatMode === state.chatMode);
+  });
+
+  if (ui.tutorPanelTitle) {
+    ui.tutorPanelTitle.textContent = isDialogue
+      ? "Тема разговора"
+      : "Задание на перевод";
+  }
+
+  if (ui.chatPanelTitle) {
+    ui.chatPanelTitle.textContent = isDialogue
+      ? "Разговор с учителем"
+      : "Проверка перевода";
+  }
+
+  if (ui.chatPanelHint) {
+    ui.chatPanelHint.textContent = isDialogue
+      ? "Пиши по-польски. Учитель поправит ответ и продолжит разговор новым вопросом."
+      : "Пиши перевод на польский. Тренер покажет ошибку, объяснение и естественный вариант.";
+  }
+
+  if (ui.chatInput) {
+    ui.chatInput.placeholder = isDialogue
+      ? "Напиши ответ по-польски"
+      : "Напиши перевод на польский";
+  }
+
+  if (ui.nextExerciseButton) {
+    ui.nextExerciseButton.textContent = isDialogue
+      ? "Сменить тему"
+      : "Следующее задание";
+  }
+
   ui.exerciseCard.innerHTML = `
     <div class="exercise-card__header">
       <strong>${exercise.title}</strong>
@@ -475,7 +514,11 @@ function renderChatLog() {
     : `
       <article class="chat-bubble chat-bubble--assistant">
         <div class="chat-bubble__title">Учебный ассистент</div>
-        <div>Выбери режим и напиши ответ. Я помогу с польской фразой и исправлю типовые ошибки.</div>
+        <div>${
+          state.chatMode === "dialogue"
+            ? "Cześć! Napisz odpowiedź po polsku. Ja poprawię najważniejsze błędy i zadam kolejne pytanie."
+            : "Выбери задание, напиши перевод на польском и получи исправление с объяснением."
+        }</div>
       </article>
     `;
 }
@@ -872,6 +915,7 @@ function setupEvents() {
     const progressButton = event.target.closest("[data-progress-word]");
     const archiveModeButton = event.target.closest("[data-archive-mode]");
     const gameModeButton = event.target.closest("[data-game-mode]");
+    const chatModeButton = event.target.closest("[data-chat-mode]");
     const quizButton = event.target.closest("[data-quiz-answer]");
 
     if (flipButton) {
@@ -903,14 +947,15 @@ function setupEvents() {
       renderGame();
     }
 
+    if (chatModeButton) {
+      state.chatMode = chatModeButton.dataset.chatMode;
+      renderChatExercise();
+      renderChatLog();
+    }
+
     if (quizButton) {
       await handleQuizAnswer(quizButton.dataset.quizAnswer, quizButton);
     }
-  });
-
-  ui.chatModeSelect?.addEventListener("change", (event) => {
-    state.chatMode = event.target.value;
-    renderChatExercise();
   });
 
   ui.nextExerciseButton?.addEventListener("click", () => {

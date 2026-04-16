@@ -2,49 +2,34 @@ const DIALOGUE_SCENARIOS = [
   {
     id: "cafe",
     title: "Кафе",
-    starter: "Dzień dobry! Co chcesz zamówić w kawiarni?",
-    hintsRu: "Ответь коротко на польском, например: Chcę kawę i herbatę.",
+    hintsRu:
+      "Ответь по-польски 1-2 короткими предложениями, например: Zwykle zamawiam małą kawę.",
     prompts: [
-      "Dzień dobry! Co chcesz zamówić w kawiarni?",
-      "Świetnie. Czy napój ma być duży czy mały?",
-      "Dobrze. A czy to ma być na miejscu czy na wynos?",
-    ],
-    replies: [
-      "Brzmi dobrze. A czy chcesz coś słodkiego do tego?",
-      "Dobrze to brzmi. Możesz odpowiedzieć pełnym zdaniem i dodać rozmiar napoju.",
-      "Bardzo dobrze. Jeszcze jedna krótka odpowiedź i zamówienie będzie gotowe.",
+      "Cześć! Jestem twoim nauczycielem polskiego. Co zwykle zamawiasz w kawiarni?",
+      "Dobrze. A jaki napój lubisz najbardziej i dlaczego?",
+      "Świetnie. Czy wolisz siedzieć w kawiarni czy brać kawę na wynos?",
     ],
   },
   {
-    id: "shop",
-    title: "Магазин",
-    starter: "Cześć! Szukasz czegoś konkretnego w sklepie?",
-    hintsRu: "Можно ответить: Szukam chleba i mleka.",
+    id: "life",
+    title: "О жизни",
+    hintsRu:
+      "Расскажи о себе простыми фразами, например: Mieszkam w Warszawie i pracuję w biurze.",
     prompts: [
-      "Cześć! Szukasz czegoś konkretnego w sklepie?",
-      "Rozumiem. W jakiej ilości tego potrzebujesz?",
-      "Dobrze. Czy chcesz też zapytać o cenę po polsku?",
-    ],
-    replies: [
-      "Rozumiem. W jakiej ilości tego potrzebujesz?",
-      "Dobrze. Spróbuj dodać liczebnik albo ilość, na przykład dwa litry.",
-      "Bardzo dobrze. Możesz jeszcze zapytać, gdzie to stoi.",
+      "Opowiedz trochę o sobie. Gdzie mieszkasz i czym się zajmujesz?",
+      "Bardzo dobrze. Co lubisz robić po pracy albo po lekcjach?",
+      "A jakie masz plany na ten tydzień?",
     ],
   },
   {
-    id: "transport",
-    title: "Дорога",
-    starter: "Dobry wieczór! Jak mogę dojść na dworzec?",
-    hintsRu: "Попробуй ответить простым направлением: Idź prosto, potem w lewo.",
+    id: "weekend",
+    title: "Планы",
+    hintsRu:
+      "Говори о выходных и планах, например: W sobotę chcę odpoczywać i spotkać się z rodziną.",
     prompts: [
-      "Dobry wieczór! Jak mogę dojść na dworzec?",
-      "Dobrze. A co dalej po skręcie?",
-      "Super. Na koniec powiedz, czy to daleko czy blisko.",
-    ],
-    replies: [
-      "Dobrze. Użyj prostych słów kierunku: prosto, w lewo, w prawo.",
-      "Super. Jeszcze jedno zdanie, żeby dokończyć wskazówki.",
-      "Świetnie. Takie krótkie instrukcje są bardzo naturalne w rozmowie.",
+      "Porozmawiajmy o weekendzie. Co chcesz robić w sobotę?",
+      "Brzmi dobrze. A z kim chcesz spędzić weekend?",
+      "Na koniec powiedz, gdzie najchętniej odpoczywasz.",
     ],
   },
 ];
@@ -135,9 +120,9 @@ export class TutorService {
       const scenario = DIALOGUE_SCENARIOS[this.dialogueScenarioIndex];
       return {
         mode,
-        title: scenario.title,
+        title: `Диалог: ${scenario.title}`,
         prompt: scenario.prompts[this.dialoguePromptIndex],
-        helpText: scenario.hintsRu,
+        helpText: `${scenario.hintsRu} Учитель ответит по-польски, мягко поправит и задаст следующий вопрос.`,
       };
     }
 
@@ -147,7 +132,8 @@ export class TutorService {
       mode,
       title: "Перевод с исправлением",
       prompt: exercise.promptRu,
-      helpText: "Напиши свой вариант на польском, и ассистент подскажет, что улучшить.",
+      helpText:
+        "Напиши свой вариант на польском. Тренер покажет ошибку, даст объяснение и предложит естественный вариант.",
     };
   }
 
@@ -174,17 +160,13 @@ export class TutorService {
 
   respondToDialogue(userInput) {
     const scenario = DIALOGUE_SCENARIOS[this.dialogueScenarioIndex];
-    const reply = scenario.replies[this.dialoguePromptIndex];
     const userText = normalize(userInput);
-    const looksDirectional =
-      /prosto|lewo|prawo|dworzec|sklep|kawa|herbata|chcę|szukam|poproszę/.test(
-        userText,
-      );
-    const corrections = [
-      looksDirectional
-        ? "Хорошо: ты используешь полезные польские слова по теме разговора."
-        : "Попробуй добавить ключевые слова по теме, например napój, sklep, prosto, w lewo.",
-    ];
+    const corrections = buildDialogueCorrections(userText);
+    const teacherReply = buildDialogueTeacherReply(
+      scenario,
+      this.dialoguePromptIndex,
+      userText,
+    );
 
     this.dialoguePromptIndex += 1;
     const finishedScenario = this.dialoguePromptIndex >= scenario.prompts.length;
@@ -198,11 +180,11 @@ export class TutorService {
     return {
       mode: "dialogue",
       replyText: finishedScenario
-        ? `${reply} Сценарий завершен, можно перейти к следующей теме.`
-        : reply,
+        ? `${teacherReply}\n\nDobrze, zakończyliśmy ten mini-dialog. Możemy przejść do następnego tematu.`
+        : teacherReply,
       corrections,
       explanationRu:
-        "Диалоговый режим поощряет простые польские ответы по теме и плавно ведет разговор дальше.",
+        "В режиме диалога тренер ведет разговор по-польски, исправляет самые заметные ошибки и продолжает беседу следующим вопросом.",
       suggestedPolish: buildDialogueSuggestion(userText, scenario.id),
     };
   }
@@ -249,17 +231,85 @@ export class TutorService {
 function buildDialogueSuggestion(userText, scenarioId) {
   if (scenarioId === "cafe") {
     return userText.includes("kawa")
-      ? "Poproszę małą kawę, na miejscu."
-      : "Chcę kawę i herbatę.";
+      ? "Zwykle zamawiam małą kawę, bo bardzo ją lubię."
+      : "W kawiarni zwykle zamawiam kawę albo herbatę.";
   }
 
-  if (scenarioId === "shop") {
-    return userText.includes("szukam")
-      ? "Szukam chleba i mleka."
-      : "Poproszę dwa litry mleka.";
+  if (scenarioId === "life") {
+    return userText.includes("mieszk")
+      ? "Mieszkam w Warszawie i pracuję w biurze."
+      : "Mieszkam w Polsce i uczę się języka polskiego.";
   }
 
-  return userText.includes("prosto")
-    ? "Idź prosto, potem w lewo."
-    : "Dworzec jest blisko. Idź prosto.";
+  return userText.includes("rodzin")
+    ? "W weekend chcę spędzić czas z rodziną i odpocząć."
+    : "W sobotę chcę odpoczywać i spotkać się z przyjaciółmi.";
+}
+
+function buildDialogueCorrections(userText) {
+  const corrections = [];
+
+  if (userText.length < 5) {
+    corrections.push("Попробуй ответить чуть полнее: хотя бы одним коротким предложением на польском.");
+  }
+
+  if (/ ja jest /i.test(` ${userText} `)) {
+    corrections.push("Лучше говорить 'ja jestem', а не 'ja jest'.");
+  }
+
+  if (/ ja ma /i.test(` ${userText} `)) {
+    corrections.push("В 1-м лице лучше 'mam', а не 'ma'.");
+  }
+
+  if (/ ja lubi /i.test(` ${userText} `)) {
+    corrections.push("В 1-м лице правильно 'lubię', а не 'lubi'.");
+  }
+
+  if (/ ja chce /i.test(` ${userText} `)) {
+    corrections.push("В 1-м лице правильно писать 'chcę', а не 'chce'.");
+  }
+
+  if (corrections.length === 0) {
+    corrections.push("Хорошо: ответ звучит по теме. Если хочешь, добавляй маленькую причину или деталь, чтобы речь звучала живее.");
+  }
+
+  return corrections;
+}
+
+function buildDialogueTeacherReply(scenario, promptIndex, userText) {
+  if (scenario.id === "cafe") {
+    if (promptIndex === 0) {
+      return userText.includes("kawa")
+        ? "Bardzo dobrze. Kawa to częsty wybór. Powiedz mi teraz: jaki napój lubisz najbardziej i dlaczego?"
+        : "Dobrze. Spróbujmy dalej. Jaki napój lubisz najbardziej i dlaczego?";
+    }
+
+    if (promptIndex === 1) {
+      return "Świetnie. Czy wolisz siedzieć w kawiarni czy brać napój na wynos?";
+    }
+
+    return "Bardzo ładnie. Twoje odpowiedzi brzmią coraz bardziej naturalnie.";
+  }
+
+  if (scenario.id === "life") {
+    if (promptIndex === 0) {
+      return "Dobrze, już wiem o tobie trochę więcej. Co lubisz robić po pracy albo po lekcjach?";
+    }
+
+    if (promptIndex === 1) {
+      return "Bardzo dobrze. A jakie masz plany na ten tydzień?";
+    }
+
+    return "Świetnie sobie radzisz. Mówisz prostymi, ale poprawnymi zdaniami.";
+  }
+
+  if (promptIndex === 0) {
+    return "Brzmi dobrze. A z kim chcesz spędzić weekend?";
+  }
+
+  if (promptIndex === 1) {
+    return "Super. Na koniec powiedz, gdzie najchętniej odpoczywasz.";
+  }
+
+  return "Bardzo dobrze. Umiesz już opowiadać o swoich planach prostym polskim.";
 }

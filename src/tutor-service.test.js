@@ -17,7 +17,7 @@ test("dialogue mode keeps conversation moving", () => {
   const response = tutor.respond("dialogue", "Chcę kawę.");
 
   assert.equal(response.mode, "dialogue");
-  assert.match(response.replyText, /czy|napój|słodkiego/i);
+  assert.match(response.replyText, /dlaczego|napój|powiedz/i);
   assert.ok(response.explanationRu.length > 0);
 });
 
@@ -29,8 +29,8 @@ test("dialogue mode rotates to the next scenario after finishing prompts", () =>
   const lastResponse = tutor.respond("dialogue", "Na miejscu.");
   const nextExercise = tutor.getExercise("dialogue");
 
-  assert.match(lastResponse.replyText, /завершен|следующей теме/i);
-  assert.equal(nextExercise.title, "Магазин");
+  assert.match(lastResponse.replyText, /zakończyliśmy|następnego tematu/i);
+  assert.equal(nextExercise.title, "Диалог: О жизни");
 });
 
 test("advance moves translation exercise forward", () => {
