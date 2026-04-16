@@ -68,11 +68,15 @@ function cacheDom() {
 
 function visibleWords() {
   const merged = mergeWordsWithProgress(state.words, state.progress);
+  const learningWords = merged.filter(
+    (word) => word.progress.status !== "archived",
+  );
+
   if (state.topicFilter === "all") {
-    return merged;
+    return learningWords;
   }
 
-  return merged.filter((word) => word.topic === state.topicFilter);
+  return learningWords.filter((word) => word.topic === state.topicFilter);
 }
 
 function activeLearningWords() {
@@ -160,7 +164,8 @@ function renderWords() {
     .join("");
 
   ui.wordList.innerHTML =
-    wordsMarkup || '<p class="support-copy">По этой теме пока нет слов.</p>';
+    wordsMarkup ||
+    '<p class="support-copy">В разделе новых слов сейчас пусто: все текущие слова уже изучены и перенесены в архив. Перейди в архив, чтобы повторять их дальше.</p>';
 }
 
 function stickerMarkup(word, scope) {
