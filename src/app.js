@@ -30,6 +30,12 @@ const state = {
 
 const ui = {};
 
+function setHidden(element, value) {
+  if (element) {
+    element.hidden = value;
+  }
+}
+
 function cacheDom() {
   ui.authPanel = document.querySelector("#auth-panel");
   ui.dashboard = document.querySelector("#dashboard");
@@ -96,11 +102,11 @@ function archivedWords() {
 
 function updateAuthVisibility() {
   const loggedIn = Boolean(state.user);
-  ui.authPanel.hidden = loggedIn;
-  ui.dashboard.hidden = !loggedIn;
-  ui.bottomNav.hidden = !loggedIn;
-  ui.logoutButton.hidden = !loggedIn;
-  ui.sidebarLogoutButton.hidden = !loggedIn;
+  setHidden(ui.authPanel, loggedIn);
+  setHidden(ui.dashboard, !loggedIn);
+  setHidden(ui.bottomNav, !loggedIn);
+  setHidden(ui.logoutButton, !loggedIn);
+  setHidden(ui.sidebarLogoutButton, !loggedIn);
 }
 
 function renderProfile() {
@@ -313,7 +319,7 @@ function renderTabs() {
   });
 
   ui.tabPanels.forEach((panel) => {
-    panel.hidden = panel.dataset.tabPanel !== state.activeTab;
+    setHidden(panel, panel.dataset.tabPanel !== state.activeTab);
   });
 }
 
@@ -495,10 +501,10 @@ function setupInstallPrompt() {
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     state.deferredInstallPrompt = event;
-    ui.installButton.hidden = false;
+    setHidden(ui.installButton, false);
   });
 
-  ui.installButton.addEventListener("click", async () => {
+  ui.installButton?.addEventListener("click", async () => {
     if (!state.deferredInstallPrompt) {
       return;
     }
@@ -506,34 +512,34 @@ function setupInstallPrompt() {
     state.deferredInstallPrompt.prompt();
     await state.deferredInstallPrompt.userChoice;
     state.deferredInstallPrompt = null;
-    ui.installButton.hidden = true;
+    setHidden(ui.installButton, true);
   });
 }
 
 function setupEvents() {
-  ui.authForm.addEventListener("submit", (event) => {
+  ui.authForm?.addEventListener("submit", (event) => {
     event.preventDefault();
     handleAuth("login");
   });
 
-  ui.registerButton.addEventListener("click", () => {
+  ui.registerButton?.addEventListener("click", () => {
     handleAuth("register");
   });
 
-  ui.logoutButton.addEventListener("click", async () => {
+  ui.logoutButton?.addEventListener("click", async () => {
     await handleLogout();
   });
 
-  ui.sidebarLogoutButton.addEventListener("click", async () => {
+  ui.sidebarLogoutButton?.addEventListener("click", async () => {
     await handleLogout();
   });
 
-  ui.topicFilter.addEventListener("change", (event) => {
+  ui.topicFilter?.addEventListener("change", (event) => {
     state.topicFilter = event.target.value;
     renderWords();
   });
 
-  ui.bottomNav.addEventListener("click", (event) => {
+  ui.bottomNav?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-tab]");
     if (!button) {
       return;
@@ -543,7 +549,7 @@ function setupEvents() {
     renderTabs();
   });
 
-  ui.wordList.addEventListener("click", async (event) => {
+  ui.wordList?.addEventListener("click", async (event) => {
     const progressButton = event.target.closest("[data-progress-word]");
     const jumpButton = event.target.closest("[data-jump-tab]");
 
@@ -596,17 +602,17 @@ function setupEvents() {
     }
   });
 
-  ui.chatModeSelect.addEventListener("change", (event) => {
+  ui.chatModeSelect?.addEventListener("change", (event) => {
     state.chatMode = event.target.value;
     renderChatExercise();
   });
 
-  ui.nextExerciseButton.addEventListener("click", () => {
+  ui.nextExerciseButton?.addEventListener("click", () => {
     state.tutorService.advance(state.chatMode);
     renderChatExercise();
   });
 
-  ui.chatForm.addEventListener("submit", handleChatSubmit);
+  ui.chatForm?.addEventListener("submit", handleChatSubmit);
 }
 
 async function handleLogout() {
@@ -623,14 +629,16 @@ async function handleLogout() {
 
 function updateAuthControls() {
   const isPending = state.authPending;
-  ui.emailInput.disabled = isPending;
-  ui.passwordInput.disabled = isPending;
-  ui.loginButton.disabled = isPending;
-  ui.registerButton.disabled = isPending;
-  ui.loginButton.textContent = isPending ? "Подождите..." : "Войти";
-  ui.registerButton.textContent = isPending
-    ? "Подождите..."
-    : "Зарегистрироваться";
+  if (ui.emailInput) ui.emailInput.disabled = isPending;
+  if (ui.passwordInput) ui.passwordInput.disabled = isPending;
+  if (ui.loginButton) ui.loginButton.disabled = isPending;
+  if (ui.registerButton) ui.registerButton.disabled = isPending;
+  if (ui.loginButton) ui.loginButton.textContent = isPending ? "Подождите..." : "Войти";
+  if (ui.registerButton) {
+    ui.registerButton.textContent = isPending
+      ? "Подождите..."
+      : "Зарегистрироваться";
+  }
 }
 
 async function init() {
