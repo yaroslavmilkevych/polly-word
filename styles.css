@@ -23,6 +23,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -78,6 +82,25 @@ button {
   width: min(1240px, calc(100% - 24px));
   margin: 0 auto;
   padding: 24px 0 104px;
+}
+
+.app-shell.is-authenticated .app-header {
+  margin-bottom: 12px;
+  padding: 12px 18px;
+  min-height: auto;
+  align-items: center;
+}
+
+.app-shell.is-authenticated .app-header > div:first-child {
+  display: none;
+}
+
+.app-shell.is-authenticated .auth-panel {
+  display: none !important;
+}
+
+.app-shell.is-authenticated .dashboard {
+  margin-top: 0;
 }
 
 .page-orb {
@@ -340,10 +363,11 @@ textarea {
 
 .dashboard-content {
   display: grid;
+  gap: 18px;
 }
 
 .tab-panel {
-  min-height: 70vh;
+  min-height: 62vh;
 }
 
 .section-head {

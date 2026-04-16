@@ -37,6 +37,7 @@ function setHidden(element, value) {
 }
 
 function cacheDom() {
+  ui.appShell = document.querySelector("#app-shell");
   ui.authPanel = document.querySelector("#auth-panel");
   ui.dashboard = document.querySelector("#dashboard");
   ui.bottomNav = document.querySelector("#bottom-nav");
@@ -47,7 +48,6 @@ function cacheDom() {
   ui.registerButton = document.querySelector("#register-button");
   ui.loginButton = document.querySelector("#login-button");
   ui.logoutButton = document.querySelector("#logout-button");
-  ui.sidebarLogoutButton = document.querySelector("#sidebar-logout-button");
   ui.installButton = document.querySelector("#install-button");
   ui.profileName = document.querySelector("#profile-name");
   ui.profileSubtitle = document.querySelector("#profile-subtitle");
@@ -102,11 +102,11 @@ function archivedWords() {
 
 function updateAuthVisibility() {
   const loggedIn = Boolean(state.user);
+  ui.appShell?.classList.toggle("is-authenticated", loggedIn);
   setHidden(ui.authPanel, loggedIn);
   setHidden(ui.dashboard, !loggedIn);
   setHidden(ui.bottomNav, !loggedIn);
   setHidden(ui.logoutButton, !loggedIn);
-  setHidden(ui.sidebarLogoutButton, !loggedIn);
 }
 
 function renderProfile() {
@@ -527,10 +527,6 @@ function setupEvents() {
   });
 
   ui.logoutButton?.addEventListener("click", async () => {
-    await handleLogout();
-  });
-
-  ui.sidebarLogoutButton?.addEventListener("click", async () => {
     await handleLogout();
   });
 
