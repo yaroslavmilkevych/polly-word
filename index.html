@@ -46,7 +46,28 @@
               работать через реальную синхронизацию.
             </p>
 
+            <div class="auth-chooser" id="auth-chooser">
+              <button
+                class="primary-button"
+                type="button"
+                id="auth-choice-login"
+              >
+                Войти
+              </button>
+              <button
+                class="secondary-button"
+                type="button"
+                id="auth-choice-register"
+              >
+                Зарегистрироваться
+              </button>
+            </div>
+
             <form class="auth-form" id="auth-form">
+              <label id="name-field" hidden>
+                Имя
+                <input id="name-input" name="name" type="text" minlength="2" />
+              </label>
               <label>
                 Email
                 <input id="email-input" name="email" type="email" required />
@@ -63,22 +84,29 @@
               </label>
 
               <div class="auth-form__actions">
-                <button class="primary-button" type="submit" id="login-button">
+                <button class="primary-button" type="submit" id="auth-submit-button">
                   Войти
                 </button>
                 <button
                   class="secondary-button"
                   type="button"
-                  id="register-button"
+                  id="auth-switch-button"
                 >
                   Зарегистрироваться
                 </button>
               </div>
+
+              <button
+                class="link-button auth-back-button"
+                type="button"
+                id="auth-back-button"
+              >
+                Назад к выбору
+              </button>
             </form>
 
             <p class="status-banner" id="auth-status" role="status">
-              Демо-режим включен: можно зарегистрироваться и сохранить прогресс
-              локально.
+              Выбери, хочешь ты войти в аккаунт или создать новый.
             </p>
           </div>
 

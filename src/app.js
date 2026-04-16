@@ -33,6 +33,7 @@ const state = {
   currentTranslateDirection: "pl-ru",
   deferredInstallPrompt: null,
   authPending: false,
+  authMode: "chooser",
 };
 
 const ui = {};
@@ -48,12 +49,18 @@ function cacheDom() {
   ui.authPanel = document.querySelector("#auth-panel");
   ui.dashboard = document.querySelector("#dashboard");
   ui.bottomNav = document.querySelector("#bottom-nav");
+  ui.authChooser = document.querySelector("#auth-chooser");
   ui.authForm = document.querySelector("#auth-form");
   ui.authStatus = document.querySelector("#auth-status");
+  ui.nameField = document.querySelector("#name-field");
+  ui.nameInput = document.querySelector("#name-input");
   ui.emailInput = document.querySelector("#email-input");
   ui.passwordInput = document.querySelector("#password-input");
-  ui.registerButton = document.querySelector("#register-button");
-  ui.loginButton = document.querySelector("#login-button");
+  ui.authChoiceLogin = document.querySelector("#auth-choice-login");
+  ui.authChoiceRegister = document.querySelector("#auth-choice-register");
+  ui.authSubmitButton = document.querySelector("#auth-submit-button");
+  ui.authSwitchButton = document.querySelector("#auth-switch-button");
+  ui.authBackButton = document.querySelector("#auth-back-button");
   ui.logoutButton = document.querySelector("#logout-button");
   ui.installButton = document.querySelector("#install-button");
   ui.profileName = document.querySelector("#profile-name");
@@ -139,12 +146,67 @@ function updateAuthVisibility() {
   setHidden(ui.logoutButton, !loggedIn);
 }
 
+function authModeCopy() {
+  if (state.authMode === "register") {
+    return {
+      submit: "Создать аккаунт",
+      switchText: "Уже есть аккаунт? Войти",
+      status: "Заполни имя, email и пароль, чтобы создать свой аккаунт.",
+    };
+  }
+
+  if (state.authMode === "login") {
+    return {
+      submit: "Войти",
+      switchText: "Нет аккаунта? Зарегистрироваться",
+      status: "Введи email и пароль, чтобы войти в свой аккаунт.",
+    };
+  }
+
+  return {
+    submit: "Войти",
+    switchText: "Зарегистрироваться",
+    status: "Выбери, хочешь ты войти в аккаунт или создать новый.",
+  };
+}
+
+function renderAuthPanel() {
+  if (state.user) {
+    return;
+  }
+
+  const isChooser = state.authMode === "chooser";
+  const isRegister = state.authMode === "register";
+  const copy = authModeCopy();
+
+  setHidden(ui.authChooser, !isChooser);
+  setHidden(ui.authForm, isChooser);
+  setHidden(ui.nameField, !isRegister);
+  setHidden(ui.authBackButton, isChooser);
+
+  if (ui.nameInput) {
+    ui.nameInput.required = isRegister;
+  }
+
+  if (ui.authSubmitButton) {
+    ui.authSubmitButton.textContent = state.authPending ? "Подождите..." : copy.submit;
+  }
+
+  if (ui.authSwitchButton) {
+    ui.authSwitchButton.textContent = state.authPending ? "Подождите..." : copy.switchText;
+  }
+
+  if (ui.authStatus && !ui.authStatus.dataset.locked) {
+    ui.authStatus.textContent = copy.status;
+  }
+}
+
 function renderProfile() {
   if (!state.user) {
     return;
   }
 
-  ui.profileName.textContent = state.user.email;
+  ui.profileName.textContent = state.user.displayName || state.user.email;
   ui.profileSubtitle.textContent = `Аккаунт создан ${new Date(
     state.user.createdAt,
   ).toLocaleDateString("ru-RU")}`;
@@ -432,6 +494,7 @@ function render() {
   updateAuthVisibility();
 
   if (!state.user) {
+    renderAuthPanel();
     return;
   }
 
@@ -564,11 +627,22 @@ async function handleAuth(action) {
     return;
   }
 
+  const name = ui.nameInput.value.trim();
   const email = ui.emailInput.value.trim();
   const password = ui.passwordInput.value.trim();
 
+  if (action === "register" && !name) {
+    ui.authStatus.textContent = "Для регистрации укажи имя.";
+    ui.authStatus.dataset.locked = "true";
+    return;
+  }
+
   if (!email || !password) {
-    ui.authStatus.textContent = "Заполни email и пароль.";
+    ui.authStatus.textContent =
+      action === "register"
+        ? "Заполни имя, email и пароль."
+        : "Заполни email и пароль.";
+    ui.authStatus.dataset.locked = "true";
     return;
   }
 
@@ -577,52 +651,23 @@ async function handleAuth(action) {
 
   try {
     if (action === "register") {
-      state.user = await state.services.authService.register(email, password);
+      state.user = await state.services.authService.register(name, email, password);
       ui.authStatus.textContent = "Регистрация выполнена успешно.";
     } else {
       state.user = await state.services.authService.login(email, password);
       ui.authStatus.textContent = "Вход выполнен успешно.";
     }
+    ui.authStatus.dataset.locked = "";
     await bootstrapUserState();
     state.activeTab = DEFAULT_TAB;
     render();
   } catch (error) {
-    const canUseLocalFallback = state.services.syncMode === "local";
-
-    if (canUseLocalFallback && action === "login" && error.code === "USER_NOT_FOUND") {
-      try {
-        state.user = await state.services.authService.register(email, password);
-        await bootstrapUserState();
-        ui.authStatus.textContent =
-          "Аккаунт не был найден, поэтому мы создали его и сразу выполнили вход.";
-        state.activeTab = DEFAULT_TAB;
-        render();
-        return;
-      } catch (registerError) {
-        ui.authStatus.textContent =
-          registerError.message ?? "Не удалось создать аккаунт.";
-        return;
-      }
-    }
-
-    if (canUseLocalFallback && action === "register" && error.code === "USER_EXISTS") {
-      try {
-        state.user = await state.services.authService.login(email, password);
-        await bootstrapUserState();
-        ui.authStatus.textContent =
-          "Такой аккаунт уже существовал, поэтому мы просто выполнили вход.";
-        state.activeTab = DEFAULT_TAB;
-        render();
-        return;
-      } catch (loginError) {
-        ui.authStatus.textContent =
-          loginError.message ??
-          "Такой аккаунт уже существует, но пароль не подошел.";
-        return;
-      }
-    }
-
-    ui.authStatus.textContent = error.message ?? "Не удалось выполнить вход.";
+    ui.authStatus.textContent =
+      error.message ??
+      (action === "register"
+        ? "Не удалось зарегистрироваться."
+        : "Не удалось выполнить вход.");
+    ui.authStatus.dataset.locked = "true";
   } finally {
     state.authPending = false;
     updateAuthControls();
@@ -740,11 +785,37 @@ function setupInstallPrompt() {
 function setupEvents() {
   ui.authForm?.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (state.authMode === "register") {
+      handleAuth("register");
+      return;
+    }
+
     handleAuth("login");
   });
 
-  ui.registerButton?.addEventListener("click", () => {
-    handleAuth("register");
+  ui.authChoiceLogin?.addEventListener("click", () => {
+    state.authMode = "login";
+    ui.authStatus.dataset.locked = "";
+    renderAuthPanel();
+  });
+
+  ui.authChoiceRegister?.addEventListener("click", () => {
+    state.authMode = "register";
+    ui.authStatus.dataset.locked = "";
+    renderAuthPanel();
+  });
+
+  ui.authSwitchButton?.addEventListener("click", () => {
+    state.authMode = state.authMode === "register" ? "login" : "register";
+    ui.authStatus.dataset.locked = "";
+    renderAuthPanel();
+  });
+
+  ui.authBackButton?.addEventListener("click", () => {
+    state.authMode = "chooser";
+    ui.authForm.reset();
+    ui.authStatus.dataset.locked = "";
+    renderAuthPanel();
   });
 
   ui.logoutButton?.addEventListener("click", async () => {
@@ -763,6 +834,7 @@ function setupEvents() {
     renderGame();
   });
 
+  ui.nameInput?.addEventListener("input", resetAuthStatus);
   ui.emailInput?.addEventListener("input", resetAuthStatus);
   ui.passwordInput?.addEventListener("input", resetAuthStatus);
 
@@ -866,7 +938,9 @@ async function handleLogout() {
   state.progress = createDefaultProgress(state.words);
   state.reviewSessions = [];
   state.chatMessages = [];
+  state.authMode = "chooser";
   ui.authForm.reset();
+  ui.authStatus.dataset.locked = "true";
   ui.authStatus.textContent =
     "Вы вышли из аккаунта. Можно войти снова или зарегистрировать новый профиль.";
   render();
@@ -874,16 +948,15 @@ async function handleLogout() {
 
 function updateAuthControls() {
   const isPending = state.authPending;
+  if (ui.nameInput) ui.nameInput.disabled = isPending;
   if (ui.emailInput) ui.emailInput.disabled = isPending;
   if (ui.passwordInput) ui.passwordInput.disabled = isPending;
-  if (ui.loginButton) ui.loginButton.disabled = isPending;
-  if (ui.registerButton) ui.registerButton.disabled = isPending;
-  if (ui.loginButton) ui.loginButton.textContent = isPending ? "Подождите..." : "Войти";
-  if (ui.registerButton) {
-    ui.registerButton.textContent = isPending
-      ? "Подождите..."
-      : "Зарегистрироваться";
-  }
+  if (ui.authChoiceLogin) ui.authChoiceLogin.disabled = isPending;
+  if (ui.authChoiceRegister) ui.authChoiceRegister.disabled = isPending;
+  if (ui.authSubmitButton) ui.authSubmitButton.disabled = isPending;
+  if (ui.authSwitchButton) ui.authSwitchButton.disabled = isPending;
+  if (ui.authBackButton) ui.authBackButton.disabled = isPending;
+  renderAuthPanel();
 }
 
 function resetAuthStatus() {
@@ -891,8 +964,8 @@ function resetAuthStatus() {
     return;
   }
 
-  ui.authStatus.textContent =
-    "Демо-режим включен: можно зарегистрироваться и сохранить прогресс локально.";
+  ui.authStatus.dataset.locked = "";
+  ui.authStatus.textContent = authModeCopy().status;
 }
 
 async function init() {
@@ -907,6 +980,8 @@ async function init() {
 
   if (state.user) {
     await bootstrapUserState();
+  } else {
+    state.authMode = "chooser";
   }
 
   render();

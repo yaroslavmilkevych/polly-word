@@ -28,8 +28,18 @@ function createAuthError(code, message) {
   return error;
 }
 
+function deriveDisplayName(email) {
+  if (!email) {
+    return "Student";
+  }
+
+  const [localPart = "Student"] = email.split("@");
+  const cleaned = localPart.replace(/[._-]+/g, " ").trim();
+  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : "Student";
+}
+
 class LocalAuthService {
-  async register(email, password) {
+  async register(name, email, password) {
     const accounts = readJson(STORAGE_KEYS.accounts, []);
 
     if (accounts.some((account) => account.email === email)) {
@@ -43,6 +53,7 @@ class LocalAuthService {
       id: `local-${crypto.randomUUID()}`,
       email,
       password,
+      displayName: name?.trim() || deriveDisplayName(email),
       createdAt: new Date().toISOString(),
     };
 
@@ -136,11 +147,20 @@ class SupabaseFacade {
     this.client = client;
   }
 
-  async register(email, password) {
-    const { data, error } = await this.client.auth.signUp({ email, password });
+  async register(name, email, password) {
+    const displayName = name?.trim() || deriveDisplayName(email);
+    const { data, error } = await this.client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: displayName,
+        },
+      },
+    });
     if (error) throw error;
-    await this.ensureProfile(data.user);
-    return sanitizeSupabaseUser(data.user);
+    await this.ensureProfile(data.user, displayName);
+    return sanitizeSupabaseUser(data.user, displayName);
   }
 
   async login(email, password) {
@@ -164,7 +184,7 @@ class SupabaseFacade {
     return "Supabase подключен: auth и прогресс синхронизируются между устройствами.";
   }
 
-  async ensureProfile(user) {
+  async ensureProfile(user, displayName) {
     if (!user?.id || !user?.email) {
       return;
     }
@@ -173,6 +193,10 @@ class SupabaseFacade {
       {
         id: user.id,
         email: user.email,
+        display_name:
+          displayName ||
+          user.user_metadata?.display_name ||
+          deriveDisplayName(user.email),
         interface_language: "ru",
       },
       { onConflict: "id" },
@@ -330,11 +354,12 @@ function sanitizeUser(user) {
   return {
     id: user.id,
     email: user.email,
+    displayName: user.displayName || deriveDisplayName(user.email),
     createdAt: user.createdAt,
   };
 }
 
-function sanitizeSupabaseUser(user) {
+function sanitizeSupabaseUser(user, fallbackDisplayName) {
   if (!user) {
     return null;
   }
@@ -342,6 +367,10 @@ function sanitizeSupabaseUser(user) {
   return {
     id: user.id,
     email: user.email,
+    displayName:
+      user.user_metadata?.display_name ||
+      fallbackDisplayName ||
+      deriveDisplayName(user.email),
     createdAt: user.created_at ?? new Date().toISOString(),
   };
 }
