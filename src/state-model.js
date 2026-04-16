@@ -27,13 +27,17 @@ export function mergeWordsWithProgress(words, progressMap) {
 export function selectStudyWords(
   words,
   progressMap,
-  { topic = "all", limit = Number.POSITIVE_INFINITY } = {},
+  { topic = "all", level = "all", limit = Number.POSITIVE_INFINITY } = {},
 ) {
   const merged = mergeWordsWithProgress(words, progressMap).filter(
     (word) => word.progress.status !== "archived",
   );
-  const filtered =
+  const topicFiltered =
     topic === "all" ? merged : merged.filter((word) => word.topic === topic);
+  const filtered =
+    level === "all"
+      ? topicFiltered
+      : topicFiltered.filter((word) => word.level === level);
 
   return filtered.slice(0, limit);
 }

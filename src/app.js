@@ -23,6 +23,7 @@ const state = {
   chatMessages: [],
   activeTab: DEFAULT_TAB,
   topicFilter: "all",
+  levelFilter: "all",
   archiveMode: "cards",
   chatMode: "translation",
   quiz: null,
@@ -59,6 +60,7 @@ function cacheDom() {
   ui.archivedCount = document.querySelector("#archived-count");
   ui.reviewCount = document.querySelector("#review-count");
   ui.topicFilter = document.querySelector("#topic-filter");
+  ui.levelFilter = document.querySelector("#level-filter");
   ui.wordList = document.querySelector("#word-list");
   ui.stickerGrid = document.querySelector("#sticker-grid");
   ui.prevWordButton = document.querySelector("#prev-word-button");
@@ -84,14 +86,16 @@ function cacheDom() {
 function visibleWords() {
   return selectStudyWords(state.words, state.progress, {
     topic: state.topicFilter,
+    level: state.levelFilter,
     limit: NEW_WORDS_BATCH_SIZE,
   });
 }
 
 function activeLearningWords() {
-  return mergeWordsWithProgress(state.words, state.progress).filter(
-    (word) => word.progress.status !== "archived",
-  );
+  return selectStudyWords(state.words, state.progress, {
+    topic: state.topicFilter,
+    level: state.levelFilter,
+  });
 }
 
 function clampGameIndex(words) {
@@ -144,6 +148,10 @@ function renderStats() {
 }
 
 function renderTopicFilter() {
+  if (!ui.topicFilter) {
+    return;
+  }
+
   const topics = [...new Set(state.words.map((word) => word.topic))];
   const options = ['<option value="all">Все темы</option>']
     .concat(
@@ -157,6 +165,28 @@ function renderTopicFilter() {
     .join("");
 
   ui.topicFilter.innerHTML = options;
+}
+
+function renderLevelFilter() {
+  if (!ui.levelFilter) {
+    return;
+  }
+
+  const levelOrder = ["A1", "A2", "B1", "B2", "C1"];
+  const levels = [...new Set(state.words.map((word) => word.level))];
+  levels.sort((left, right) => levelOrder.indexOf(left) - levelOrder.indexOf(right));
+  const options = ['<option value="all">Все уровни</option>']
+    .concat(
+      levels.map(
+        (level) =>
+          `<option value="${level}" ${
+            state.levelFilter === level ? "selected" : ""
+          }>${level}</option>`,
+      ),
+    )
+    .join("");
+
+  ui.levelFilter.innerHTML = options;
 }
 
 function renderWords() {
@@ -361,6 +391,7 @@ function render() {
   renderProfile();
   renderStats();
   renderTopicFilter();
+  renderLevelFilter();
   renderWords();
   renderGame();
   renderArchive();
@@ -425,18 +456,52 @@ async function handleAuth(action) {
   updateAuthControls();
 
   try {
-    state.user =
-      action === "register"
-        ? await state.services.authService.register(email, password)
-        : await state.services.authService.login(email, password);
+    if (action === "register") {
+      state.user = await state.services.authService.register(email, password);
+      ui.authStatus.textContent = "Регистрация выполнена успешно.";
+    } else {
+      state.user = await state.services.authService.login(email, password);
+      ui.authStatus.textContent = "Вход выполнен успешно.";
+    }
     await bootstrapUserState();
-    ui.authStatus.textContent =
-      action === "register"
-        ? "Регистрация выполнена успешно."
-        : "Вход выполнен успешно.";
     state.activeTab = DEFAULT_TAB;
     render();
   } catch (error) {
+    const canUseLocalFallback = state.services.syncMode === "local";
+
+    if (canUseLocalFallback && action === "login" && error.code === "USER_NOT_FOUND") {
+      try {
+        state.user = await state.services.authService.register(email, password);
+        await bootstrapUserState();
+        ui.authStatus.textContent =
+          "Аккаунт не был найден, поэтому мы создали его и сразу выполнили вход.";
+        state.activeTab = DEFAULT_TAB;
+        render();
+        return;
+      } catch (registerError) {
+        ui.authStatus.textContent =
+          registerError.message ?? "Не удалось создать аккаунт.";
+        return;
+      }
+    }
+
+    if (canUseLocalFallback && action === "register" && error.code === "USER_EXISTS") {
+      try {
+        state.user = await state.services.authService.login(email, password);
+        await bootstrapUserState();
+        ui.authStatus.textContent =
+          "Такой аккаунт уже существовал, поэтому мы просто выполнили вход.";
+        state.activeTab = DEFAULT_TAB;
+        render();
+        return;
+      } catch (loginError) {
+        ui.authStatus.textContent =
+          loginError.message ??
+          "Такой аккаунт уже существует, но пароль не подошел.";
+        return;
+      }
+    }
+
     ui.authStatus.textContent = error.message ?? "Не удалось выполнить вход.";
   } finally {
     state.authPending = false;
@@ -568,6 +633,12 @@ function setupEvents() {
 
   ui.topicFilter?.addEventListener("change", (event) => {
     state.topicFilter = event.target.value;
+    renderWords();
+    renderGame();
+  });
+
+  ui.levelFilter?.addEventListener("change", (event) => {
+    state.levelFilter = event.target.value;
     renderWords();
     renderGame();
   });

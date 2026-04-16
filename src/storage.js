@@ -22,12 +22,21 @@ function writeJson(key, value) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
+function createAuthError(code, message) {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
+
 class LocalAuthService {
   async register(email, password) {
     const accounts = readJson(STORAGE_KEYS.accounts, []);
 
     if (accounts.some((account) => account.email === email)) {
-      throw new Error("Пользователь с таким email уже существует.");
+      throw createAuthError(
+        "USER_EXISTS",
+        "Пользователь с таким email уже существует.",
+      );
     }
 
     const user = {
@@ -45,16 +54,21 @@ class LocalAuthService {
 
   async login(email, password) {
     const accounts = readJson(STORAGE_KEYS.accounts, []);
-    const user = accounts.find(
-      (account) => account.email === email && account.password === password,
-    );
+    const existingUser = accounts.find((account) => account.email === email);
 
-    if (!user) {
-      throw new Error("Неверный email или пароль.");
+    if (!existingUser) {
+      throw createAuthError("USER_NOT_FOUND", "Аккаунт не найден.");
     }
 
-    writeJson(STORAGE_KEYS.session, { userId: user.id, email: user.email });
-    return sanitizeUser(user);
+    if (existingUser.password !== password) {
+      throw createAuthError("INVALID_PASSWORD", "Неверный email или пароль.");
+    }
+
+    writeJson(STORAGE_KEYS.session, {
+      userId: existingUser.id,
+      email: existingUser.email,
+    });
+    return sanitizeUser(existingUser);
   }
 
   async logout() {

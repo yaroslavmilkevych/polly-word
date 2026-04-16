@@ -280,6 +280,7 @@ textarea {
 
 .auth-form__actions,
 .section-head,
+.filters-row,
 .archive-layout,
 .chat-layout,
 .progress-card,
@@ -379,6 +380,11 @@ textarea {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   margin-bottom: 24px;
+}
+
+.filters-row {
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  align-items: start;
 }
 
 .section-head h2,
@@ -681,7 +687,8 @@ textarea {
   }
 
   .progress-card,
-  .auth-form__actions {
+  .auth-form__actions,
+  .filters-row {
     grid-template-columns: 1fr;
   }
 
