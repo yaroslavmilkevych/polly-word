@@ -25,6 +25,7 @@ const state = {
   chatMode: "translation",
   quiz: null,
   deferredInstallPrompt: null,
+  authPending: false,
 };
 
 const ui = {};
@@ -38,7 +39,9 @@ function cacheDom() {
   ui.emailInput = document.querySelector("#email-input");
   ui.passwordInput = document.querySelector("#password-input");
   ui.registerButton = document.querySelector("#register-button");
+  ui.loginButton = document.querySelector("#login-button");
   ui.logoutButton = document.querySelector("#logout-button");
+  ui.sidebarLogoutButton = document.querySelector("#sidebar-logout-button");
   ui.installButton = document.querySelector("#install-button");
   ui.profileName = document.querySelector("#profile-name");
   ui.profileSubtitle = document.querySelector("#profile-subtitle");
@@ -97,6 +100,7 @@ function updateAuthVisibility() {
   ui.dashboard.hidden = !loggedIn;
   ui.bottomNav.hidden = !loggedIn;
   ui.logoutButton.hidden = !loggedIn;
+  ui.sidebarLogoutButton.hidden = !loggedIn;
 }
 
 function renderProfile() {
@@ -363,6 +367,10 @@ async function setProgress(wordId, nextStatus) {
 }
 
 async function handleAuth(action) {
+  if (state.authPending) {
+    return;
+  }
+
   const email = ui.emailInput.value.trim();
   const password = ui.passwordInput.value.trim();
 
@@ -371,16 +379,26 @@ async function handleAuth(action) {
     return;
   }
 
+  state.authPending = true;
+  updateAuthControls();
+
   try {
     state.user =
       action === "register"
         ? await state.services.authService.register(email, password)
         : await state.services.authService.login(email, password);
     await bootstrapUserState();
-    ui.authStatus.textContent = "Вход выполнен успешно.";
+    ui.authStatus.textContent =
+      action === "register"
+        ? "Регистрация выполнена успешно."
+        : "Вход выполнен успешно.";
+    state.activeTab = DEFAULT_TAB;
     render();
   } catch (error) {
     ui.authStatus.textContent = error.message ?? "Не удалось выполнить вход.";
+  } finally {
+    state.authPending = false;
+    updateAuthControls();
   }
 }
 
@@ -488,12 +506,11 @@ function setupEvents() {
   });
 
   ui.logoutButton.addEventListener("click", async () => {
-    await state.services.authService.logout();
-    state.user = null;
-    state.progress = createDefaultProgress(state.words);
-    state.reviewSessions = [];
-    state.chatMessages = [];
-    render();
+    await handleLogout();
+  });
+
+  ui.sidebarLogoutButton.addEventListener("click", async () => {
+    await handleLogout();
   });
 
   ui.topicFilter.addEventListener("change", (event) => {
@@ -575,6 +592,30 @@ function setupEvents() {
   });
 
   ui.chatForm.addEventListener("submit", handleChatSubmit);
+}
+
+async function handleLogout() {
+  await state.services.authService.logout();
+  state.user = null;
+  state.progress = createDefaultProgress(state.words);
+  state.reviewSessions = [];
+  state.chatMessages = [];
+  ui.authForm.reset();
+  ui.authStatus.textContent =
+    "Вы вышли из аккаунта. Можно войти снова или зарегистрировать новый профиль.";
+  render();
+}
+
+function updateAuthControls() {
+  const isPending = state.authPending;
+  ui.emailInput.disabled = isPending;
+  ui.passwordInput.disabled = isPending;
+  ui.loginButton.disabled = isPending;
+  ui.registerButton.disabled = isPending;
+  ui.loginButton.textContent = isPending ? "Подождите..." : "Войти";
+  ui.registerButton.textContent = isPending
+    ? "Подождите..."
+    : "Зарегистрироваться";
 }
 
 async function init() {
