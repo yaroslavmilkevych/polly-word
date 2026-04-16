@@ -469,11 +469,26 @@ async function handleQuizAnswer(answer, button) {
 }
 
 function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {
-      // Ignore registration errors in unsupported/local preview environments.
-    });
+  if (!("serviceWorker" in navigator)) {
+    return;
   }
+
+  navigator.serviceWorker
+    .getRegistrations()
+    .then((registrations) =>
+      Promise.all(registrations.map((registration) => registration.unregister())),
+    )
+    .then(() => globalThis.caches?.keys?.())
+    .then((keys) => {
+      if (!keys) {
+        return;
+      }
+
+      return Promise.all(keys.map((key) => globalThis.caches.delete(key)));
+    })
+    .catch(() => {
+      // Ignore cache cleanup failures in restricted environments.
+    });
 }
 
 function setupInstallPrompt() {
