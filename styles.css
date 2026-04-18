@@ -180,18 +180,21 @@ button {
 }
 
 .header-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
   gap: 12px;
+  width: 100%;
 }
 
 .header-profile {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   padding: 10px 14px;
+  min-width: 0;
+  width: 100%;
   border-radius: 999px;
   border: 1px solid rgba(20, 54, 66, 0.08);
   background: rgba(255, 251, 245, 0.8);
@@ -207,9 +210,17 @@ button {
 }
 
 .header-profile__identity {
+  flex: 0 1 auto;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+}
+
+.header-profile__stats {
+  flex: 1 1 auto;
+  justify-content: center;
+  flex-wrap: wrap;
+  row-gap: 4px;
 }
 
 .header-profile__name {
@@ -917,16 +928,19 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .header-actions,
-  .header-profile,
-  .header-profile__stats {
-    width: 100%;
+  .header-actions {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: start;
   }
 
-  .header-profile,
-  .header-profile__stats {
-    flex-direction: column;
+  .header-profile {
+    border-radius: 28px;
     align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .header-profile__stats {
+    justify-content: flex-start;
   }
 
   .single-card-stage__controls {
@@ -963,11 +977,16 @@ textarea {
 
   .header-actions {
     width: 100%;
-    justify-content: stretch;
+    grid-template-columns: 1fr 1fr;
   }
 
-  .header-actions > * {
-    flex: 1;
+  .header-profile {
+    grid-column: 1 / -1;
+    border-radius: 28px;
+  }
+
+  .header-actions > button {
+    width: 100%;
   }
 
   .sticker-card,
