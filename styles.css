@@ -655,8 +655,9 @@ textarea {
 }
 
 .chat-layout {
-  grid-template-columns: minmax(260px, 0.32fr) minmax(0, 0.68fr);
+  grid-template-columns: 1fr;
   align-items: start;
+  gap: 18px;
 }
 
 .chat-mode-bar {
@@ -696,25 +697,32 @@ textarea {
 }
 
 .tutor-panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
-  margin-bottom: 18px;
+  align-items: start;
+  margin-bottom: 0;
+}
+
+.tutor-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.34fr) minmax(0, 0.66fr);
+  gap: 18px;
+  align-items: start;
 }
 
 .exercise-card {
   display: grid;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px 18px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.72);
 }
 
 .exercise-card__prompt {
   margin: 0;
-  font-size: 1.28rem;
-  line-height: 1.25;
+  font-size: 1.1rem;
+  line-height: 1.2;
   font-family: var(--heading-font);
 }
 
@@ -852,13 +860,10 @@ textarea {
   .auth-form__actions,
   .filters-row,
   .chat-mode-bar,
-  .chat-panel__header {
-    grid-template-columns: 1fr;
-  }
-
+  .chat-panel__header,
+  .tutor-panel,
   .tutor-panel__header {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
   }
 
   .single-card-stage__controls {
