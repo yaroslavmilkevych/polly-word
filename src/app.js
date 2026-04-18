@@ -458,6 +458,7 @@ function renderQuiz(words = archivedWords()) {
 function renderChatExercise() {
   const exercise = state.tutorService.getExercise(state.chatMode);
   const isDialogue = state.chatMode === "dialogue";
+  const [promptLead, promptFocus] = splitExercisePrompt(exercise.prompt, isDialogue);
 
   ui.chatModeButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.chatMode === state.chatMode);
@@ -495,15 +496,33 @@ function renderChatExercise() {
 
   ui.exerciseCard.innerHTML = `
     <div class="exercise-card__header">
-      <strong>${exercise.title}</strong>
+      <strong>${isDialogue ? "Тема" : "Задание"}</strong>
       <span class="tag">${exercise.mode === "dialogue" ? "Диалог" : "Перевод"}</span>
     </div>
-    <p class="exercise-card__prompt">${exercise.prompt}</p>
+    ${promptLead ? `<p class="exercise-card__lead">${promptLead}</p>` : ""}
+    <div class="exercise-card__focus">
+      <strong>${promptFocus}</strong>
+    </div>
     <details class="help-popover help-popover--card">
       <summary aria-label="Показать подсказку к заданию">?</summary>
       <div class="help-popover__content">${exercise.helpText}</div>
     </details>
   `;
+}
+
+function splitExercisePrompt(prompt, isDialogue) {
+  if (isDialogue) {
+    return ["Ответь на вопрос:", prompt];
+  }
+
+  const parts = prompt.split(":");
+  if (parts.length < 2) {
+    return ["Переведи на польский:", prompt];
+  }
+
+  const lead = `${parts.shift()}:`;
+  const focus = parts.join(":").trim();
+  return [lead, focus];
 }
 
 function renderChatLog() {

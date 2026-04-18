@@ -516,6 +516,9 @@ textarea {
 
 .word-card__actions {
   margin-top: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
 }
 
 .link-button {
@@ -523,6 +526,11 @@ textarea {
   background: transparent;
   color: var(--accent-strong);
   padding: 0;
+  min-width: 0;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
 }
 
 .auth-back-button {
@@ -745,6 +753,9 @@ textarea {
 
 .tutor-panel {
   padding: 18px 20px;
+  position: sticky;
+  top: 14px;
+  z-index: 2;
 }
 
 .tutor-topbar {
@@ -773,15 +784,29 @@ textarea {
 .exercise-card__header {
   display: grid;
   gap: 6px;
-  min-width: 132px;
+  min-width: 104px;
 }
 
-.exercise-card__prompt {
+.exercise-card__lead {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.94rem;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.exercise-card__focus {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(245, 93, 62, 0.08);
+  border: 1px solid rgba(245, 93, 62, 0.16);
+}
+
+.exercise-card__focus strong {
+  display: block;
+  font-size: 1.02rem;
   line-height: 1.25;
   font-family: var(--heading-font);
-  flex: 1;
 }
 
 .chat-panel {
@@ -945,6 +970,10 @@ textarea {
 
   .single-card-stage__controls {
     grid-template-columns: 1fr;
+  }
+
+  .tutor-panel {
+    position: static;
   }
 
   .translate-stage__header,
