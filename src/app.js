@@ -465,9 +465,8 @@ function renderChatExercise() {
   });
 
   if (ui.tutorPanelTitle) {
-    ui.tutorPanelTitle.textContent = isDialogue
-      ? "Тема разговора"
-      : "Задание на перевод";
+    ui.tutorPanelTitle.textContent = "";
+    setHidden(ui.tutorPanelTitle, true);
   }
 
   if (ui.chatPanelTitle) {
@@ -495,10 +494,6 @@ function renderChatExercise() {
   }
 
   ui.exerciseCard.innerHTML = `
-    <div class="exercise-card__header">
-      <strong>${isDialogue ? "Тема" : "Задание"}</strong>
-      <span class="tag">${exercise.mode === "dialogue" ? "Диалог" : "Перевод"}</span>
-    </div>
     ${promptLead ? `<p class="exercise-card__lead">${promptLead}</p>` : ""}
     <div class="exercise-card__focus">
       <strong>${promptFocus}</strong>
