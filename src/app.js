@@ -61,14 +61,15 @@ function cacheDom() {
   ui.authSubmitButton = document.querySelector("#auth-submit-button");
   ui.authSwitchButton = document.querySelector("#auth-switch-button");
   ui.authBackButton = document.querySelector("#auth-back-button");
+  ui.headerProfile = document.querySelector("#header-profile");
+  ui.headerProfileName = document.querySelector("#header-profile-name");
+  ui.headerProfileSubtitle = document.querySelector("#header-profile-subtitle");
+  ui.headerNewCount = document.querySelector("#header-new-count");
+  ui.headerArchivedCount = document.querySelector("#header-archived-count");
+  ui.headerReviewCount = document.querySelector("#header-review-count");
   ui.logoutButton = document.querySelector("#logout-button");
   ui.installButton = document.querySelector("#install-button");
-  ui.profileName = document.querySelector("#profile-name");
-  ui.profileSubtitle = document.querySelector("#profile-subtitle");
   ui.syncMode = document.querySelector("#sync-mode");
-  ui.newCount = document.querySelector("#new-count");
-  ui.archivedCount = document.querySelector("#archived-count");
-  ui.reviewCount = document.querySelector("#review-count");
   ui.topicFilter = document.querySelector("#topic-filter");
   ui.levelFilter = document.querySelector("#level-filter");
   ui.wordList = document.querySelector("#word-list");
@@ -147,6 +148,7 @@ function updateAuthVisibility() {
   setHidden(ui.dashboard, !loggedIn);
   setHidden(ui.bottomNav, !loggedIn);
   setHidden(ui.logoutButton, !loggedIn);
+  setHidden(ui.headerProfile, !loggedIn);
 }
 
 function authModeCopy() {
@@ -209,18 +211,20 @@ function renderProfile() {
     return;
   }
 
-  ui.profileName.textContent = state.user.displayName || state.user.email;
-  ui.profileSubtitle.textContent = `Аккаунт создан ${new Date(
+  const createdAtText = `Аккаунт создан ${new Date(
     state.user.createdAt,
   ).toLocaleDateString("ru-RU")}`;
+
+  ui.headerProfileName.textContent = state.user.displayName || state.user.email;
+  ui.headerProfileSubtitle.textContent = createdAtText;
   ui.syncMode.textContent = state.services.authService.getModeLabel();
 }
 
 function renderStats() {
   const summary = summarizeProgress(state.words, state.progress);
-  ui.newCount.textContent = String(summary.newWords);
-  ui.archivedCount.textContent = String(summary.archived);
-  ui.reviewCount.textContent = String(state.reviewSessions.length);
+  ui.headerNewCount.textContent = `Новых слов: ${summary.newWords}`;
+  ui.headerArchivedCount.textContent = `В архиве: ${summary.archived}`;
+  ui.headerReviewCount.textContent = `Повторений: ${state.reviewSessions.length}`;
 }
 
 function renderTopicFilter() {

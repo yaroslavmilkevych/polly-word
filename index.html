@@ -26,6 +26,27 @@
         </div>
 
         <div class="header-actions">
+          <div class="header-profile" id="header-profile" hidden>
+            <div class="header-profile__identity">
+              <span class="header-profile__name" id="header-profile-name">Student</span>
+              <span class="header-profile__meta" id="header-profile-subtitle">
+                Аккаунт создан 01.01.2026
+              </span>
+            </div>
+
+            <div class="header-profile__stats">
+              <span id="header-new-count">Новых слов: 0</span>
+              <span id="header-archived-count">В архиве: 0</span>
+              <span id="header-review-count">Повторений: 0</span>
+            </div>
+
+            <details class="help-popover help-popover--header">
+              <summary aria-label="Показать подсказку о режиме">?</summary>
+              <div class="help-popover__content" id="sync-mode">
+                Локальный режим с готовой архитектурой под Supabase.
+              </div>
+            </details>
+          </div>
           <button class="secondary-button" id="install-button" type="button" hidden>
             Установить PWA
           </button>
@@ -122,44 +143,6 @@
         </section>
 
         <section class="dashboard" id="dashboard" hidden>
-          <section class="dashboard-top panel">
-            <div class="profile-card">
-              <p class="eyebrow">Профиль</p>
-              <h2 id="profile-name">Student</h2>
-              <p class="support-copy" id="profile-subtitle">
-                Синхронизация прогресса включена
-              </p>
-            </div>
-
-            <div class="progress-card">
-              <div class="stat-tile">
-                <span>Новых слов</span>
-                <strong id="new-count">0</strong>
-              </div>
-              <div class="stat-tile">
-                <span>В архиве</span>
-                <strong id="archived-count">0</strong>
-              </div>
-              <div class="stat-tile">
-                <span>Сессий повторения</span>
-                <strong id="review-count">0</strong>
-              </div>
-            </div>
-
-            <div class="mode-card">
-              <div class="inline-help-head">
-                <p class="eyebrow">Режим</p>
-                <details class="help-popover">
-                  <summary aria-label="Показать подсказку о режиме">?</summary>
-                  <div class="help-popover__content" id="sync-mode">
-                    Локальный режим с готовой архитектурой под Supabase.
-                  </div>
-                </details>
-              </div>
-              <p class="support-copy">Текущий способ хранения прогресса</p>
-            </div>
-          </section>
-
           <section class="dashboard-content">
             <section class="tab-panel" id="tab-words" data-tab-panel="words">
               <div class="section-head">

@@ -85,9 +85,9 @@ button {
 }
 
 .app-shell.is-authenticated .app-header {
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 8px;
-  padding: 0;
+  padding: 10px 0;
   min-height: auto;
   align-items: center;
   border: 0;
@@ -181,9 +181,48 @@ button {
 
 .header-actions {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.header-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(20, 54, 66, 0.08);
+  background: rgba(255, 251, 245, 0.8);
+  box-shadow: var(--shadow);
+}
+
+.header-profile__identity,
+.header-profile__stats {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.header-profile__identity {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.header-profile__name {
+  font-family: var(--heading-font);
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.header-profile__meta,
+.header-profile__stats span {
+  color: var(--muted);
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .eyebrow {
@@ -381,19 +420,6 @@ textarea {
 .stat-tile strong {
   font-size: 1.8rem;
   font-family: var(--heading-font);
-}
-
-.dashboard-top {
-  display: grid;
-  grid-template-columns: minmax(220px, auto) minmax(320px, 1fr) minmax(220px, auto);
-  gap: 18px;
-  align-items: start;
-}
-
-.dashboard-top .profile-card,
-.dashboard-top .mode-card {
-  padding-bottom: 0;
-  border-bottom: 0;
 }
 
 .dashboard-content {
@@ -811,6 +837,10 @@ textarea {
   justify-self: start;
 }
 
+.help-popover--header .help-popover__content {
+  right: 0;
+}
+
 .help-popover--card .help-popover__content {
   left: 0;
   right: auto;
@@ -883,9 +913,20 @@ textarea {
   .filters-row,
   .chat-mode-bar,
   .chat-panel__header,
-  .tutor-topbar,
-  .dashboard-top {
+  .tutor-topbar {
     grid-template-columns: 1fr;
+  }
+
+  .header-actions,
+  .header-profile,
+  .header-profile__stats {
+    width: 100%;
+  }
+
+  .header-profile,
+  .header-profile__stats {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .single-card-stage__controls {
@@ -907,7 +948,6 @@ textarea {
   .app-header,
   .card-panel,
   .highlight-panel,
-  .dashboard-top,
   .tab-panel,
   .quiz-panel,
   .chat-panel,
