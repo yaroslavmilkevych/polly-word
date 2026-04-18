@@ -771,9 +771,10 @@ textarea {
   border-radius: 999px;
   border: 1px solid rgba(20, 54, 66, 0.1);
   background: rgba(255, 255, 255, 0.84);
-  color: var(--accent-strong);
+  color: rgba(95, 108, 114, 0.82);
   font-family: var(--heading-font);
-  font-size: 1rem;
+  font-size: 0.86rem;
+  line-height: 1;
   cursor: pointer;
   list-style: none;
 }
