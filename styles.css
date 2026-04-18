@@ -760,7 +760,7 @@ textarea {
 
 .tutor-topbar {
   display: grid;
-  grid-template-columns: minmax(190px, auto) minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
 }
@@ -769,12 +769,14 @@ textarea {
   display: grid;
   gap: 10px;
   align-items: center;
+  justify-items: start;
 }
 
 .exercise-card {
   display: flex;
   align-items: center;
   gap: 14px;
+  width: 100%;
   padding: 14px 18px;
   min-height: 84px;
   border-radius: 20px;
