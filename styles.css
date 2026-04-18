@@ -210,8 +210,7 @@ button {
 }
 
 .dashboard {
-  grid-template-columns: minmax(260px, 0.33fr) minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: 1fr;
 }
 
 .panel {
@@ -222,7 +221,7 @@ button {
 
 .card-panel,
 .highlight-panel,
-.dashboard-sidebar,
+.dashboard-top,
 .tab-panel,
 .quiz-panel,
 .chat-panel,
@@ -346,8 +345,7 @@ textarea {
 
 .profile-card,
 .mode-card {
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
+  min-width: 0;
 }
 
 .inline-help-head {
@@ -364,7 +362,6 @@ textarea {
 
 .progress-card {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 18px 0;
 }
 
 .stat-tile {
@@ -384,6 +381,19 @@ textarea {
 .stat-tile strong {
   font-size: 1.8rem;
   font-family: var(--heading-font);
+}
+
+.dashboard-top {
+  display: grid;
+  grid-template-columns: minmax(220px, auto) minmax(320px, 1fr) minmax(220px, auto);
+  gap: 18px;
+  align-items: start;
+}
+
+.dashboard-top .profile-card,
+.dashboard-top .mode-card {
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .dashboard-content {
@@ -872,7 +882,8 @@ textarea {
   .filters-row,
   .chat-mode-bar,
   .chat-panel__header,
-  .tutor-topbar {
+  .tutor-topbar,
+  .dashboard-top {
     grid-template-columns: 1fr;
   }
 
@@ -895,7 +906,7 @@ textarea {
   .app-header,
   .card-panel,
   .highlight-panel,
-  .dashboard-sidebar,
+  .dashboard-top,
   .tab-panel,
   .quiz-panel,
   .chat-panel,
