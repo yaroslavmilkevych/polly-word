@@ -269,6 +269,10 @@ function renderLevelFilter() {
   ui.levelFilter.innerHTML = options;
 }
 
+function buildWordContext(word) {
+  return `Тема: ${word.topic} · Уровень ${word.level}`;
+}
+
 function renderWords() {
   const wordsMarkup = visibleWords()
     .map(
@@ -279,7 +283,7 @@ function renderWords() {
             <span class="tag">${word.progress.status === "archived" ? "В архиве" : word.level}</span>
           </div>
           <p class="word-card__translation">${word.russian}</p>
-          <p class="word-card__topic">${word.topic} · ${word.example}</p>
+          <p class="word-card__topic">${buildWordContext(word)}</p>
           <div class="word-card__actions">
             <button class="primary-button" type="button" data-jump-tab="game">
               Тренировать
@@ -318,7 +322,7 @@ function stickerMarkup(word, scope) {
           <button class="sticker-card__surface" type="button" data-flip-word="${word.id}" aria-label="Перевернуть карточку назад ${word.polish}">
             <div class="sticker-card__meta">${word.topic}</div>
             <strong>${word.russian}</strong>
-            <p class="support-copy">${word.example}</p>
+            <p class="support-copy">${buildWordContext(word)}</p>
           </button>
           <div class="sticker-card__actions">
             <button class="primary-button" type="button" data-progress-word="${word.id}" data-progress-status="archived">
@@ -539,7 +543,7 @@ function renderChatLog() {
         .join("")
     : `
       <article class="chat-bubble chat-bubble--assistant">
-        <div class="chat-bubble__title">Учебный ассистент</div>
+        <div class="chat-bubble__title">Тренер польского</div>
         <div>${
           state.chatMode === "dialogue"
             ? `${dialogueOpeningPrompt}<br /><br />Napisz odpowiedź po polsku, a ja odpowiem jak nauczyciel i pociągnę rozmowę dalej.`
