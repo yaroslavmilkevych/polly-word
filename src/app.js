@@ -269,10 +269,6 @@ function renderLevelFilter() {
   ui.levelFilter.innerHTML = options;
 }
 
-function buildWordContext(word) {
-  return `Тема: ${word.topic} · Уровень ${word.level}`;
-}
-
 function renderWords() {
   const wordsMarkup = visibleWords()
     .map(
@@ -283,7 +279,8 @@ function renderWords() {
             <span class="tag">${word.progress.status === "archived" ? "В архиве" : word.level}</span>
           </div>
           <p class="word-card__translation">${word.russian}</p>
-          <p class="word-card__topic">${buildWordContext(word)}</p>
+          <p class="word-card__topic">${word.topic}</p>
+          <p class="word-card__example">${word.example}</p>
           <div class="word-card__actions">
             <button class="primary-button" type="button" data-jump-tab="game">
               Тренировать
@@ -322,7 +319,7 @@ function stickerMarkup(word, scope) {
           <button class="sticker-card__surface" type="button" data-flip-word="${word.id}" aria-label="Перевернуть карточку назад ${word.polish}">
             <div class="sticker-card__meta">${word.topic}</div>
             <strong>${word.russian}</strong>
-            <p class="support-copy">${buildWordContext(word)}</p>
+            <p class="support-copy">${word.example}</p>
           </button>
           <div class="sticker-card__actions">
             <button class="primary-button" type="button" data-progress-word="${word.id}" data-progress-status="archived">
