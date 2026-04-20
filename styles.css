@@ -544,9 +544,9 @@ textarea {
   padding: 0;
   min-width: 0;
   text-align: left;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
   line-height: 1.25;
+  font-size: 0.95rem;
 }
 
 .auth-back-button {

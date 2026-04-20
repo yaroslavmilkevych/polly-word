@@ -291,7 +291,7 @@ function renderWords() {
               data-progress-word="${word.id}"
               data-progress-status="${word.progress.status === "archived" ? "learning" : "archived"}"
             >
-              ${word.progress.status === "archived" ? "Вернуть в обучение" : "Отметить как знаю"}
+              ${word.progress.status === "archived" ? "Вернуть" : "Знаю"}
             </button>
           </div>
         </article>

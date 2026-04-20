@@ -158,6 +158,88 @@ const SEED_WORDS = [
   ["c1-reputacja", "reputacja", "репутация", "Общение", "C1", "f"],
 ];
 
+const BASE_EXAMPLES = {
+  "a1-dom": "Ten dom stoi blisko parku.",
+  "a1-kawa": "Rano piję kawę bez cukru.",
+  "a1-herbata": "Wieczorem często robię herbatę z cytryną.",
+  "a1-sklep": "Ten sklep jest otwarty do dziewiątej.",
+  "a1-cena": "Cena tego biletu jest całkiem dobra.",
+  "a1-autobus": "Ten autobus jedzie prosto do centrum.",
+  "a1-szkola": "Moja szkoła zaczyna zajęcia o ósmej.",
+  "a1-dzien": "Dziś mam bardzo dobry dzień.",
+  "a1-rodzina": "Moja rodzina lubi wspólne kolacje.",
+  "a1-przyjaciel": "Mój przyjaciel mieszka niedaleko mnie.",
+  "a1-ulica": "Ta ulica jest spokojna wieczorem.",
+  "a1-bilet": "Mam już bilet na jutrzejszy pociąg.",
+  "a1-chleb": "Świeży chleb pachnie bardzo dobrze.",
+  "a1-woda": "Zawsze mam przy sobie butelkę wody.",
+  "a1-praca": "Moja praca daje mi dużo doświadczenia.",
+
+  "a2-podroz": "Ta podróż była spokojna i dobrze zaplanowana.",
+  "a2-lotnisko": "Na lotnisko jedziemy bardzo wcześnie rano.",
+  "a2-rezerwacja": "Moja rezerwacja jest już potwierdzona.",
+  "a2-spotkanie": "To spotkanie zaczyna się za dziesięć minut.",
+  "a2-zadanie": "To zadanie wymaga trochę cierpliwości.",
+  "a2-wiadomosc": "Dostałem ważną wiadomość od nauczyciela.",
+  "a2-kuchnia": "Ta kuchnia jest jasna i bardzo wygodna.",
+  "a2-pogoda": "Dzisiaj pogoda sprzyja spacerom.",
+  "a2-rower": "Mój rower stoi przed domem.",
+  "a2-walizka": "Ta walizka jest gotowa na wyjazd.",
+  "a2-mapa": "Mapa pomaga nam szybko znaleźć drogę.",
+  "a2-sasiad": "Mój sąsiad zawsze mówi mi dzień dobry.",
+  "a2-kino": "To kino pokazuje dziś ciekawy film.",
+  "a2-restauracja": "Ta restauracja serwuje dobre obiady.",
+  "a2-telefon": "Mój telefon jest dziś prawie rozładowany.",
+
+  "b1-zdrowie": "Zdrowie jest dla mnie naprawdę ważne.",
+  "b1-energia": "Po urlopie mam więcej energii do pracy.",
+  "b1-rozmowa": "Ta rozmowa wiele mi wyjaśniła.",
+  "b1-decyzja": "To była trudna, ale dobra decyzja.",
+  "b1-doswiadczenie": "To doświadczenie dużo mnie nauczyło.",
+  "b1-kultura": "Kultura pracy w tym zespole jest bardzo dobra.",
+  "b1-projekt": "Nasz projekt wchodzi teraz w ważny etap.",
+  "b1-raport": "Raport jest już gotowy do wysłania.",
+  "b1-klient": "Ten klient zadał bardzo konkretne pytania.",
+  "b1-odpoczynek": "Po pracy potrzebuję chwili odpoczynku.",
+  "b1-problem": "Ten problem da się spokojnie rozwiązać.",
+  "b1-rozwiazanie": "To rozwiązanie wygląda najbardziej praktycznie.",
+  "b1-kurs": "Ten kurs pomaga mi mówić pewniej po polsku.",
+  "b1-badanie": "Badanie trwało krócej, niż myślałem.",
+  "b1-wyklad": "Wykład był ciekawy i dobrze przygotowany.",
+
+  "b2-strategia": "Nasza strategia musi być jasna dla całego zespołu.",
+  "b2-analiza": "Ta analiza pokazuje główne przyczyny problemu.",
+  "b2-rozwoj": "Rozwój firmy zależy od dobrych decyzji.",
+  "b2-skutecznosc": "Skuteczność tej metody naprawdę mnie zaskoczyła.",
+  "b2-wspolpraca": "Dobra współpraca skraca czas realizacji projektu.",
+  "b2-organizacja": "Organizacja pracy w tym miesiącu jest lepsza.",
+  "b2-jakosc": "Jakość tej usługi jest coraz wyższa.",
+  "b2-perspektywa": "Ta perspektywa pomaga inaczej spojrzeć na problem.",
+  "b2-proces": "Proces wdrożenia trwa dłużej niż planowaliśmy.",
+  "b2-wartosc": "Ta wartość jest ważna dla całego zespołu.",
+  "b2-odpowiedzialnosc": "Odpowiedzialność za wynik spoczywa na całej grupie.",
+  "b2-komunikacja": "Dobra komunikacja zmniejsza liczbę błędów.",
+  "b2-elastycznosc": "Elastyczność bardzo przydaje się w codziennej pracy.",
+  "b2-narzedzie": "To narzędzie oszczędza nam sporo czasu.",
+  "b2-priorytet": "Naszym priorytetem jest teraz jakość.",
+
+  "c1-niezaleznosc": "Niezależność finansowa daje ludziom większy spokój.",
+  "c1-precyzja": "Precyzja w języku ułatwia dobrą komunikację.",
+  "c1-wiarygodnosc": "Wiarygodność źródła ma tu kluczowe znaczenie.",
+  "c1-zlozonosc": "Złożoność tego tematu wymaga spokojnej analizy.",
+  "c1-metodologia": "Metodologia badania została dobrze opisana.",
+  "c1-przywodztwo": "Dobre przywództwo buduje zaufanie w zespole.",
+  "c1-konsekwencja": "Konsekwencja pomaga osiągać długofalowe cele.",
+  "c1-stabilnosc": "Stabilność systemu jest dziś najważniejsza.",
+  "c1-narracja": "Narracja autora zmienia odbiór całego tekstu.",
+  "c1-interpretacja": "Twoja interpretacja jest bardzo przekonująca.",
+  "c1-innowacja": "Ta innowacja może zmienić sposób pracy firmy.",
+  "c1-transformacja": "Transformacja cyfrowa trwa dłużej niż zakładano.",
+  "c1-autonomia": "Autonomia zespołu zwiększa jego odpowiedzialność.",
+  "c1-odpornosć": "Odporność psychiczna pomaga w trudnych momentach.",
+  "c1-reputacja": "Dobra reputacja buduje się latami.",
+};
+
 const EXPRESSION_TEMPLATES = [
   {
     id: "plan",
@@ -199,13 +281,26 @@ function baseEntry([id, polish, russian, topic, level, gender]) {
     topic,
     level,
     gender,
-    example: `To jest ${polish}.`,
+    example: BASE_EXAMPLES[id] ?? `To jest ${polish}.`,
   };
+}
+
+function hashText(value) {
+  return [...value].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+}
+
+function pickExampleVariant(key, variants) {
+  return variants[hashText(key) % variants.length];
 }
 
 function modifierEntry(word, modifier) {
   const polish = `${modifier.forms[word.gender]} ${word.polish}`;
   const russian = `${modifier.ru[word.gender]} ${word.russian}`;
+  const example = pickExampleVariant(`${word.id}-${modifier.id}`, [
+    `Myślę, że ${polish} to bardzo dobry wybór.`,
+    `W tym tygodniu ${polish} naprawdę zwraca moją uwagę.`,
+    `Coraz częściej słyszę wyrażenie: ${polish}.`,
+  ]);
 
   return {
     id: `${word.id}-${modifier.id}`,
@@ -214,7 +309,7 @@ function modifierEntry(word, modifier) {
     topic: word.topic,
     level: word.level,
     gender: word.gender,
-    example: `To jest ${polish}.`,
+    example,
   };
 }
 
