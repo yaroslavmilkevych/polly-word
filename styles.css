@@ -478,7 +478,7 @@ textarea {
 }
 
 .word-list {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .word-card {
@@ -1016,6 +1016,10 @@ textarea {
   .translate-stage__form {
     grid-template-columns: 1fr;
   }
+
+  .word-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
@@ -1057,5 +1061,9 @@ textarea {
   .sticker-card,
   .sticker-card__inner {
     min-height: 208px;
+  }
+
+  .word-list {
+    grid-template-columns: 1fr;
   }
 }
