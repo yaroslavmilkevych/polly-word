@@ -507,7 +507,7 @@ function renderChatExercise() {
 
 function splitExercisePrompt(prompt, isDialogue) {
   if (isDialogue) {
-    return ["Ответь на вопрос:", prompt];
+    return ["", prompt];
   }
 
   const parts = prompt.split(":");
@@ -521,6 +521,11 @@ function splitExercisePrompt(prompt, isDialogue) {
 }
 
 function renderChatLog() {
+  const dialogueOpeningPrompt =
+    state.chatMode === "dialogue"
+      ? state.tutorService.getExercise("dialogue").prompt
+      : null;
+
   ui.chatLog.innerHTML = state.chatMessages.length
     ? state.chatMessages
         .map(
@@ -537,7 +542,7 @@ function renderChatLog() {
         <div class="chat-bubble__title">Учебный ассистент</div>
         <div>${
           state.chatMode === "dialogue"
-            ? "Cześć! Napisz odpowiedź po polsku. Ja poprawię najważniejsze błędy i zadam kolejne pytanie."
+            ? `${dialogueOpeningPrompt}<br /><br />Napisz odpowiedź po polsku, a ja odpowiem jak nauczyciel i pociągnę rozmowę dalej.`
             : "Выбери задание, напиши перевод на польском и получи исправление с объяснением."
         }</div>
       </article>
