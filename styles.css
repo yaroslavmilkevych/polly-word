@@ -535,6 +535,7 @@ textarea {
   font-size: 0.95rem;
   white-space: nowrap;
   line-height: 1;
+  border-radius: 20px;
 }
 
 .link-button {
@@ -547,6 +548,17 @@ textarea {
   white-space: nowrap;
   line-height: 1.25;
   font-size: 0.95rem;
+}
+
+.word-card__actions .link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid rgba(245, 93, 62, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .auth-back-button {
